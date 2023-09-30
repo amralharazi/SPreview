@@ -13,25 +13,40 @@ struct SongPlayerView: View {
     let song: SongItem
     let imgDimension: CGFloat
     
+    @State private var isPlaying = false
+    
     // MARK: Content
     var body: some View {
         ZStack {
+            Color.brightestPerrywinkle
+                .clipShape(.rect(topLeadingRadius: 20,
+                                 topTrailingRadius: 20))
             
-//            Color
-            
-            HStack {
-                Image(song.image ?? "")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: imgDimension/1.5)
-                    .clipShape(RoundedRectangle(cornerRadius: imgDimension/10))
+            VStack (alignment: .center){
+                HStack(spacing: 10) {
+                    SongRowView(imgDimension: 80/1.5, isForSongPlayerView: true)
+                    
+                    Button {
+                        isPlaying.toggle()
+                    } label: {
+                        Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                            .font(.system(.headline))
+                            .contentTransition(.symbolEffect(.replace))
+                    }
+                    .tint(.white)
+                }
                 
-                
+                SliderView()
             }
+            .padding()
+
         }
     }
 }
 
 #Preview(traits: .sizeThatFitsLayout) {
     SongPlayerView(song: SongItem.dummySong, imgDimension: 80)
+        .frame(height: 120)
+        .padding(.top)
 }
+

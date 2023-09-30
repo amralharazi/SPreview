@@ -88,4 +88,5 @@ extension Color {
 
 extension Color {
     static let bienso = Color(hex: "#1F222B")
+    static let brightestPerrywinkle = Color(hex: "#8070FF")
 }

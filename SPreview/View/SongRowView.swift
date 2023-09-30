@@ -11,15 +11,22 @@ struct SongRowView: View {
     
     // MARK: Properties
     let imgDimension: CGFloat
+    let isForSongPlayerView: Bool
+    
+    // MARK: Init
+    init(imgDimension: CGFloat, isForSongPlayerView: Bool = false) {
+        self.imgDimension = imgDimension
+        self.isForSongPlayerView = isForSongPlayerView
+    }
     
     // MARK: Content
     var body: some View {
-        HStack {
+        HStack(spacing: 10) {
             Image("tamino")
                 .resizable()
-                .scaledToFit()
-                .frame(width: imgDimension)
-                .clipShape(RoundedRectangle(cornerRadius: imgDimension/10))
+                .scaledToFill()
+                .frame(width: imgDimension, height: imgDimension)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             
             VStack(alignment: .leading, spacing: 5) {
                 Text("Indigo Night")
@@ -28,7 +35,7 @@ struct SongRowView: View {
                 
                 Text("Tamino")
                     .font(.system(.subheadline, design: .rounded))
-                    .foregroundStyle(.gray.opacity(0.75))
+                    .foregroundStyle( isForSongPlayerView ? .white : .gray.opacity(0.75))
             }
             
             Spacer()
@@ -36,7 +43,6 @@ struct SongRowView: View {
     }
 }
 
-#Preview {
+#Preview(traits: .sizeThatFitsLayout) {
     SongRowView(imgDimension: 80)
-        .previewLayout(.sizeThatFits)
 }
