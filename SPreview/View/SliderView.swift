@@ -58,7 +58,7 @@ struct SliderView: View {
     }
 }
 
-#Preview {
+#Preview(traits: .sizeThatFitsLayout) {
     SliderView()
-        .frame(width:300, height:30)
+        .frame(height: 5)
 }

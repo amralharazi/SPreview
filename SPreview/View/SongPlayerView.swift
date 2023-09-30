@@ -37,6 +37,7 @@ struct SongPlayerView: View {
                 }
                 
                 SliderView()
+                    .frame(height: 5)
             }
             .padding()
 

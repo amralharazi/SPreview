@@ -1,5 +1,5 @@
 //
-//  SongListView.swift
+//  MainView.swift
 //  SPreview
 //
 //  Created by Amr on 30.09.2023.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SongListView: View {
+struct MainView: View {
     
     // MARK: Properties
     @State private var isPlaying = false
@@ -23,16 +23,8 @@ struct SongListView: View {
                     Color.bienso
                         .ignoresSafeArea()
                     
-                    List(0..<10, id: \.self) { number in
-                        SongRowView(imgDimension: imgDimension)
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
-                    }
-                    .scrollContentBackground(.hidden)
+                    SongListView(imgDimension: imgDimension)
                     .padding(.bottom, isPlaying ? playerHeight : 0)
-                    .scrollIndicators(.hidden)
-                    .listStyle(.plain)
-                    
                     
                     SongPlayerView(song: SongItem.dummySong,
                                    imgDimension: imgDimension)
@@ -43,14 +35,11 @@ struct SongListView: View {
                     
                 }
                 .navigationTitle("SPreview")
-                .onAppear {
-                    isPlaying = true
-                }
             }
         }
     }
 }
 
 #Preview {
-    SongListView()
+    MainView()
 }
