@@ -11,7 +11,7 @@ import SwiftUI
 struct SPreviewApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SongListView()
         }
     }
 }
