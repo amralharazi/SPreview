@@ -17,14 +17,15 @@ struct SongPlayerView: View {
     
     // MARK: Content
     var body: some View {
-        ZStack {
+        ZStack(alignment: .top) {
             Color.brightestPerrywinkle
                 .clipShape(.rect(topLeadingRadius: 20,
                                  topTrailingRadius: 20))
+                .shadow(radius: 5)
             
-            VStack (alignment: .center){
+            VStack(spacing: 20){
                 HStack(spacing: 10) {
-                    SongRowView(imgDimension: 80/1.5, isForSongPlayerView: true)
+                    SongRowView(imgDimension: imgDimension/1.5, isForSongPlayerView: true)
                     
                     Button {
                         isPlaying.toggle()
@@ -40,8 +41,8 @@ struct SongPlayerView: View {
                     .frame(height: 5)
             }
             .padding()
-
         }
+        .ignoresSafeArea()
     }
 }
 
