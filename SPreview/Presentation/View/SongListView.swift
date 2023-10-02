@@ -14,12 +14,16 @@ struct SongListView: View {
     
     // MARK: Content
     var body: some View {
-        
-        List(0..<10, id: \.self) { number in
-            SongRowView(imgDimension: imgDimension)
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
+        ScrollView() {
+            LazyVStack {
+                ForEach(0..<100, id: \.self) { number in
+                    SongRowView(imgDimension: imgDimension)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                }
+            }
         }
+        .scrollIndicators(.hidden)
         .scrollContentBackground(.hidden)
         .scrollIndicators(.hidden)
         .listStyle(.plain)
@@ -29,3 +33,4 @@ struct SongListView: View {
 #Preview {
     SongListView(imgDimension: 80)
 }
+

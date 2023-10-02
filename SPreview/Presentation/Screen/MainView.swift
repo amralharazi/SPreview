@@ -27,30 +27,31 @@ struct MainView: View {
             
             NavigationView {
                 ZStack(alignment: .bottom) {
-                    Color.bienso
-                        .ignoresSafeArea(edges: .all)
+                    VStack(spacing: 10) {
+                        TitleAndSearchHeaderView()
                         
-                    
-                    SongListView(imgDimension: imgDimension)
-                    .padding(.bottom, shouldAddPaddingToList ? playerHeight : 0)
-                    .onTapGesture {
-                        isPlaying.toggle()
-                        if isPlaying {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                shouldAddPaddingToList = true
+                        SongListView(imgDimension: imgDimension)
+                            .padding(.bottom, shouldAddPaddingToList ? playerHeight : 0)
+                            .onTapGesture {
+                                isPlaying.toggle()
+                                if isPlaying {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                        shouldAddPaddingToList = true
+                                    }
+                                }
                             }
-                        }
                     }
-                    
+                    .padding(.horizontal)
+
                     SongPlayerView(song: SongItem.dummySong,
                                    imgDimension: imgDimension)
                     .frame(height: playerHeight)
                     .offset(y: isPlaying ? 0 : playerHeight*1.5)
                     .animation(.easeIn(duration: 0.2), value: isPlaying)
-                    
                 }
-                .navigationTitle("SPreview")
+                .background(Color.bienso)
             }
+            .toolbar(.hidden, for: .navigationBar)
         }
     }
 }
@@ -58,3 +59,5 @@ struct MainView: View {
 #Preview {
     MainView()
 }
+
+

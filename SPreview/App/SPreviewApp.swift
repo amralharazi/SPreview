@@ -9,9 +9,18 @@ import SwiftUI
 
 @main
 struct SPreviewApp: App {
+    
+    // MARK: Properties
+    private let accessManager = TokenManager.shared
+    
+    // MARK: Content
     var body: some Scene {
         WindowGroup {
-            MainView()
+            if !accessManager.hasAccessToken() {
+                LandingView()
+            } else {
+                MainView()
+            }
         }
     }
 }

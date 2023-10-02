@@ -7,7 +7,7 @@
 
 import Foundation
 
-class TokenManager {
+class TokenManager: ObservableObject {
     
     // MARK: Properties
     private let userDefaults = UserDefaults.standard
