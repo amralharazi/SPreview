@@ -7,7 +7,8 @@
 
 import Foundation
 
-struct SongItem {
+struct SongItem: Identifiable, Equatable {
+    let id = UUID()
     let songName: String
     var artistName: String?
     var image: String?

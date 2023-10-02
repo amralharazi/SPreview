@@ -38,12 +38,12 @@ class APIManager: APIManagerProtocol {
                            parameters: request.params,
                            encoding: request.encoding,
                            headers: _headers).responseData { response in
-                    debugPrint(response)
+//                    debugPrint(response)
                     
                     switch response.result {
                         
                     case .success(let data):
-                        print(String(data: data, encoding: .utf8) as Any)
+//                        print(String(data: data, encoding: .utf8) as Any)
                         continuation.resume(returning: data)
                         return
                     case .failure(let error):

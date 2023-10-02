@@ -1,5 +1,5 @@
 //
-//  LandingView.swift
+//  AuthorizationView.swift
 //  SPreview
 //
 //  Created by Amr on 2.10.2023.
@@ -7,10 +7,11 @@
 
 import SwiftUI
 
-struct LandingView: View {
+struct AuthorizationView: View {
     
     // MARK: Properties
     @State private var presentAuthorizationWebView = false
+    @State private var hasAuthorized = false
     
     // MARK: Content
     var body: some View {
@@ -40,6 +41,9 @@ struct LandingView: View {
             }
             .fullScreenCover(isPresented: $presentAuthorizationWebView) {
                 prepareRequestView()
+                    .fullScreenCover(isPresented: $hasAuthorized) {
+                    SavedSongsView(spotifyMusic: SpotifyMusic())
+                }
             }
         }
     }
@@ -49,11 +53,12 @@ struct LandingView: View {
         guard let request = TokenRequest.getAccessTokenRequest() else {
             return nil
         }
-       return Webview(req: request)
+        return Webview(req: request,
+                       requestManager: RequestManager(),
+                       hasAuthorized: $hasAuthorized)
     }
 }
 
 #Preview {
-    LandingView()
-        .environmentObject(TokenManager.shared)
+    AuthorizationView()
 }

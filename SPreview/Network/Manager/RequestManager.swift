@@ -8,6 +8,7 @@
 import Foundation
 
 protocol RequestManagerProtocol {
+    var accessTokenManager: TokenManagerProtocol { get }
     func perform<T: Decodable>(_ request: RequestProtocol) async throws -> T
 }
 
@@ -16,13 +17,15 @@ class RequestManager: RequestManagerProtocol {
     // MARK: Properties
     let apiManager: APIManagerProtocol
     let parser: DataParserProtocol
-    let accessTokenManager = TokenManager.shared
+    let accessTokenManager: TokenManagerProtocol
     
     // MARK: Init
     init(apiManager: APIManagerProtocol = APIManager(),
-         parser: DataParserProtocol = DataParser()) {
+         parser: DataParserProtocol = DataParser(),
+         accessTokenManager: TokenManagerProtocol = TokenManager.shared) {
         self.apiManager = apiManager
         self.parser = parser
+        self.accessTokenManager = accessTokenManager
     }
     
     // MARK: Helpers

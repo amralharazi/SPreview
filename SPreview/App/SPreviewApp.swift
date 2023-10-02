@@ -17,9 +17,9 @@ struct SPreviewApp: App {
     var body: some Scene {
         WindowGroup {
             if !accessManager.hasAccessToken() {
-                LandingView()
+                AuthorizationView()
             } else {
-                MainView()
+                SavedSongsView(spotifyMusic: SpotifyMusic())
             }
         }
     }

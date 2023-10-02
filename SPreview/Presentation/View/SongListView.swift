@@ -12,14 +12,27 @@ struct SongListView: View {
     // MARK: Properties
     let imgDimension: CGFloat
     
+    @Binding var songs: [SongItem]
+    @Binding var isShowingLastSong: Bool
+    @Binding var tappedSong: SongItem?
+    
     // MARK: Content
     var body: some View {
         ScrollView() {
             LazyVStack {
-                ForEach(0..<100, id: \.self) { number in
-                    SongRowView(imgDimension: imgDimension)
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
+                ForEach(songs) { song in
+                    SongRowView(song: song,
+                                imgDimension: imgDimension)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .onAppear {
+                        if song == songs.last {
+                            isShowingLastSong = true
+                        }
+                    }
+                    .onTapGesture {
+                        tappedSong = song
+                    }
                 }
             }
         }
@@ -31,6 +44,9 @@ struct SongListView: View {
 }
 
 #Preview {
-    SongListView(imgDimension: 80)
+    SongListView(imgDimension: 80,
+                 songs: .constant([]),
+                 isShowingLastSong: .constant(false),
+                 tappedSong: .constant(SongItem.dummySong))
 }
 

@@ -7,7 +7,15 @@
 
 import Foundation
 
-class TokenManager: ObservableObject {
+protocol TokenManagerProtocol {
+    func isTokenValid() -> Bool
+    func hasAccessToken() -> Bool
+    func refreshWith(token: AccessTokens) throws
+    func fetchAccessToken() -> String
+    func fetchRefreshToken() -> String
+}
+
+class TokenManager: TokenManagerProtocol {
     
     // MARK: Properties
     private let userDefaults = UserDefaults.standard

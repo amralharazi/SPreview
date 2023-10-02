@@ -6,15 +6,20 @@
 //
 
 import SwiftUI
+import SDWebImageSwiftUI
 
 struct SongRowView: View {
     
     // MARK: Properties
+    let song: SongItem
     let imgDimension: CGFloat
     let isForSongPlayerView: Bool
     
     // MARK: Init
-    init(imgDimension: CGFloat, isForSongPlayerView: Bool = false) {
+    init(song: SongItem,
+         imgDimension: CGFloat,
+         isForSongPlayerView: Bool = false) {
+        self.song = song
         self.imgDimension = imgDimension
         self.isForSongPlayerView = isForSongPlayerView
     }
@@ -22,19 +27,23 @@ struct SongRowView: View {
     // MARK: Content
     var body: some View {
         HStack(spacing: 10) {
-            Image("tamino")
+            WebImage(url: URL(string: song.image ?? ""))
                 .resizable()
-                .scaledToFill()
+                .indicator(.activity)
+                .transition(.fade(duration: 0.5))
+                .scaledToFit()
                 .frame(width: imgDimension, height: imgDimension)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             
             VStack(alignment: .leading, spacing: 5) {
-                Text("Indigo Night")
+                Text(song.songName)
                     .font(.system(.headline, design: .rounded))
+                    .lineLimit(1)
                     .foregroundStyle(Color.white)
                 
-                Text("Tamino")
+                Text(song.artistName ?? "Unknown")
                     .font(.system(.subheadline, design: .rounded))
+                    .lineLimit(1)
                     .foregroundStyle( isForSongPlayerView ? .white : .gray.opacity(0.75))
             }
             
@@ -44,5 +53,5 @@ struct SongRowView: View {
 }
 
 #Preview(traits: .sizeThatFitsLayout) {
-    SongRowView(imgDimension: 80)
+    SongRowView(song: SongItem.dummySong, imgDimension: 80)
 }
