@@ -15,7 +15,7 @@ struct SongPlayerView: View {
    @StateObject var musicPlayer: MusicPlayer
     
     @State private var isPlaying = false
-    @State private var startAnimatig = false
+    @State private var startAnimating = false
     @State private var reset = false
     @State private var seekToSecond: CGFloat = 0
 
@@ -44,7 +44,7 @@ struct SongPlayerView: View {
                     .frame(width: 30)
                 }
                 
-                SliderView(startAnimatig: $startAnimatig,
+                SliderView(startAnimating: $startAnimating,
                            reset: $reset,
                            seekToSecond: $seekToSecond)
                     .frame(height: 5)
@@ -68,10 +68,10 @@ struct SongPlayerView: View {
         .onChange(of: musicPlayer.hasFinished) {
             if musicPlayer.hasFinished {
                isPlaying = false
-                startAnimatig = false
+                startAnimating = false
             } else {
                 isPlaying = true
-                startAnimatig = true
+                startAnimating = true
             }
         }
     }
@@ -82,6 +82,7 @@ struct SongPlayerView: View {
             do {
                 try musicPlayer.preparePlayer(with: previewUrl)
                 isPlaying = true
+                startAnimating = true
             } catch {
                 print(error)
                 //                delegate?.showPopup(with: error.localizedDescription)
@@ -92,13 +93,15 @@ struct SongPlayerView: View {
     }
     
     private func togglePlayer() {
-        isPlaying.toggle()
+        
         if musicPlayer.isPlayingCurrently() {
             musicPlayer.pauseMusic()
-            startAnimatig = false
+            startAnimating = false
+            isPlaying = false
         } else {
             musicPlayer.playMusic()
-            startAnimatig = true
+            startAnimating = true
+            isPlaying = true
         }
     }
     

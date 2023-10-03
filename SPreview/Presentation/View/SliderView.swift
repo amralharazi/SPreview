@@ -13,27 +13,29 @@ struct SliderView: View {
     // MARK: Properties
     let sliderHeight: CGFloat = 5
     
-    @Binding var startAnimatig: Bool
-    @Binding var reset: Bool {
-        didSet {
-            print("rest")
-            withAnimation {
-                slider = 0
-                
-            }
-        animationDuration = 30.0
-        }
-    }
+    @Binding var startAnimating: Bool
+    @Binding var reset: Bool
+    //    {
+    //        didSet {
+    //            print("rest")
+    //            withAnimation {
+    //                slider = 0
+    //
+    //            }
+    //        animationDuration = 30.0
+    //        }
+    //    }
     @Binding var seekToSecond: CGFloat
     
     @State var slider: CGFloat = 0
-    @State var dragGestureTranslation: CGFloat = 0
-    @State var lastDragValue: CGFloat = 0
     @State private var maxValue: CGFloat = UIScreen.main.bounds.width*0.95
     @State var animate = false
     
     @State var timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
     @State var animationDuration: Double = 30.0
+    
+    @State private var startedDragging = false
+    @State private var sliderWidthBeforeDragging: CGFloat = 0
     
     // MARK: Content
     var body: some View {
@@ -48,32 +50,30 @@ struct SliderView: View {
                         .frame(width: CGFloat(slider), height: sliderHeight)
                         .gesture(DragGesture(minimumDistance: 0)
                             .onChanged({ dragValue in
-                                let translation = dragValue.translation
                                 
-                                dragGestureTranslation = CGFloat(translation.width) + lastDragValue
+                                if !startedDragging  {
+                                    sliderWidthBeforeDragging = slider
+                                }
+                                startedDragging =  true
                                 
-                                dragGestureTranslation = dragGestureTranslation >= 0 ? dragGestureTranslation : 0
+                                let dragWidth = dragValue.translation.width
                                 
-                                dragGestureTranslation = dragGestureTranslation > (geometry.size.width - slider) ? (geometry.size.width - slider) :  dragGestureTranslation
+                                slider = sliderWidthBeforeDragging + dragWidth
                                 
-                                self.slider = min(max(0, dragGestureTranslation), dragGestureTranslation)
-                                
+                                // Ensure that slider stays within the desired range
+                                //                                            if slider < 0 {
+                                //                                                slider = 0
+                                //                                            } else if slider > maxValue {
+                                //                                                slider = maxValue
+                                //                                            }
                                 mapValue(value: slider )
-                                //                                timer.upstream.connect().cancel()
                                 
                             })
-                                .onEnded({ dragValue in
-                                    dragGestureTranslation = dragGestureTranslation >= 0 ? dragGestureTranslation : 0
-                                    
-                                    dragGestureTranslation = dragGestureTranslation > (geometry.size.width - slider) ? (geometry.size.width - slider) : dragGestureTranslation
-                                    
-                                    lastDragValue = dragGestureTranslation
-                                    mapValue(value: slider)
-                                    //                                    timer.upstream.connect().cancel()
+                                .onEnded({ _ in
+                                    startedDragging =  false
                                 })
                         )
                         .onReceive(timer) { _ in
-                            // 3
                             animationDuration -= 0.1
                             if animationDuration <= 0.0 {
                                 timer.upstream.connect().cancel()
@@ -88,28 +88,34 @@ struct SliderView: View {
                 .clipShape(RoundedRectangle(cornerRadius: sliderHeight/2))
             }
         }
-        .onChange(of: startAnimatig){
-            if startAnimatig {
+        .onChange(of: startAnimating){
+            if startAnimating {
                 timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
-               
             } else {
                 timer.upstream.connect().cancel()
             }
         }
+        .onChange(of: reset){
+            print(reset)
+            if reset {
+                slider = 0
+                timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
+                startAnimating = true
+                animationDuration = 30.0
+            }
+            reset = false
+        }
         
     }
     
-    func mapValue(value: Double)  {
+    // MARK: Functions
+    private func mapValue(value: Double)  {
         let minValue = 0.0
-        let minMappedValue = 0.0
         let maxMappedValue = 30.0
         
-        // Ensure the value is within the given range
         let clampedValue = min(max(value, minValue), maxValue)
-        
-        // Calculate the mapped value
-        let normalizedValue = (clampedValue - minValue) / (maxValue - minValue)
-        let mappedValue = (normalizedValue * (maxMappedValue - minMappedValue)) + minMappedValue
+                let normalizedValue = (clampedValue - minValue) / (maxValue - minValue)
+        let mappedValue = (normalizedValue * (maxMappedValue))
         
         animationDuration = 30-mappedValue
         seekToSecond = mappedValue
@@ -118,7 +124,7 @@ struct SliderView: View {
 }
 
 #Preview(traits: .sizeThatFitsLayout) {
-    SliderView( startAnimatig: .constant(false),
+    SliderView( startAnimating: .constant(false),
                 reset: .constant(false),
                 seekToSecond: .constant(0))
     .frame(height: 5)
