@@ -10,15 +10,16 @@ import SwiftUI
 struct SongPlayerView: View {
     
     // MARK: Properties
-    var song: SongItem?
+    let song: SongItem
     let imgDimension: CGFloat
-   @StateObject var musicPlayer: MusicPlayer
+    
+    @EnvironmentObject var errorHandling: ErrorHandling
+    
+    @StateObject var musicPlayer: MusicPlayer
     
     @State private var isPlaying = false
-    @State private var startAnimating = false
-    @State private var reset = false
-    @State private var seekToSecond: CGFloat = 0
-
+    @State private var startingSecond: Double = 0
+    
     // MARK: Content
     var body: some View {
         ZStack(alignment: .top) {
@@ -29,9 +30,9 @@ struct SongPlayerView: View {
             
             VStack(spacing: 20){
                 HStack(spacing: 10) {
-                    SongRowView(song: song ?? SongItem.dummySong,
+                    SongRowView(song: song,
                                 imgDimension: imgDimension/1.5,
-                                isForSongPlayerView: true)
+                                artistNameColor: .white)
                     
                     Button {
                         togglePlayer()
@@ -44,69 +45,71 @@ struct SongPlayerView: View {
                     .frame(width: 30)
                 }
                 
-                SliderView(startAnimating: $startAnimating,
-                           reset: $reset,
-                           seekToSecond: $seekToSecond)
-                    .frame(height: 5)
+                SliderView(musicPlayer: musicPlayer,
+                           startingSecond: $startingSecond)
+                .frame(height: 5)
             }
             .padding()
         }
         .ignoresSafeArea()
         .onAppear {
-                if song != nil {
-                    prepareAndPlaySong()
-                    reset = true
-                }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                configurePlayer()
             }
-        .onChange(of: song) {
-            prepareAndPlaySong()
-            reset = true
         }
-        .onChange(of: seekToSecond) {
-            seekTo(second: seekToSecond)
+        .onChange(of: song) {
+            configurePlayer()
+        }
+        .onChange(of: startingSecond) {
+            seekTo(second: startingSecond)
         }
         .onChange(of: musicPlayer.hasFinished) {
-            if musicPlayer.hasFinished {
-               isPlaying = false
-                startAnimating = false
+            if musicPlayer.hasFinished ?? false  {
+                isPlaying = false
             } else {
                 isPlaying = true
-                startAnimating = true
             }
         }
     }
     
     // MARK: Functions
-    private func prepareAndPlaySong() {
-        if let previewUrl = song?.previewUrl {
-            do {
-                try musicPlayer.preparePlayer(with: previewUrl)
-                isPlaying = true
-                startAnimating = true
-            } catch {
-                print(error)
-                //                delegate?.showPopup(with: error.localizedDescription)
-            }
-        } else {
-            //            delegate?.showPopup(with: MusicProviderError.songHasNoPreview.localizedDescription)
+    private func configurePlayer() {
+        guard let previewUrl = song.previewUrl else {
+            self.errorHandling.handle(error: MusicProviderError.songHasNoPreview)
+            return
+        }
+        
+        prepareSong(with: previewUrl)
+    }
+
+    private func prepareSong(with url: String) {
+        do {
+            try musicPlayer.preparePlayer(with: url)
+            resumeMusic()
+        } catch {
+            self.errorHandling.handle(error: error)
+        }
+    }
+    
+    private func resumeMusic() {
+        do {
+            try musicPlayer.playMusic()
+        } catch {
+            self.errorHandling.handle(error: error)
         }
     }
     
     private func togglePlayer() {
-        
         if musicPlayer.isPlayingCurrently() {
             musicPlayer.pauseMusic()
-            startAnimating = false
-            isPlaying = false
         } else {
-            musicPlayer.playMusic()
-            startAnimating = true
-            isPlaying = true
+            resumeMusic()
         }
     }
     
     private func seekTo(second: CGFloat) {
         musicPlayer.seekTo(startAt: second)
+        resumeMusic()
     }
 }
 

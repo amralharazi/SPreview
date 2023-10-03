@@ -23,7 +23,7 @@ class APIManager: APIManagerProtocol {
     func perform(_ request: RequestProtocol,
                  authToken: String = "") async throws -> Data {
         
-        try checkInternetConnection()
+        try Connectivity.checkInternetConnection()
         
         var _headers = request.headers
         
@@ -60,11 +60,5 @@ class APIManager: APIManagerProtocol {
     
     func requestToken() async throws -> Data {
         try await perform(TokenRequest.getRefreshedToken)
-    }
-    
-    private func checkInternetConnection() throws {
-        if !Connectivity.isConnectedToInternet {
-            throw NetworkError.noConnection
-        }
     }
 }

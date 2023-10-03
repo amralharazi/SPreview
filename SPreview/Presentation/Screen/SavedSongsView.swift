@@ -10,11 +10,13 @@ import SwiftUI
 struct SavedSongsView: View {
     
     // MARK: Properties
-    let spotifyMusic: MusicProvider
+    let musicProvider: MusicProvider
+    
+    @EnvironmentObject var errorHandling: ErrorHandling
     
     @State private var songs = [SongItem]()
-    @State private var isShowingLastSong = false
     @State private var tappedSong: SongItem?
+    @State private var isShowingLastSong = false
     @State private var shouldAddPaddingToList = false
     @State private var isPlaying = false {
         didSet {
@@ -37,8 +39,8 @@ struct SavedSongsView: View {
                         
                         SongListView(imgDimension: imgDimension,
                                      songs: $songs,
-                                     isShowingLastSong: $isShowingLastSong,
-                                     tappedSong: $tappedSong.animation())
+                                     tappedSong: $tappedSong.animation(),
+                                     isShowingLastSong: $isShowingLastSong)
                         .padding(.bottom, shouldAddPaddingToList ? playerHeight : 0)
                         
                     }
@@ -50,7 +52,7 @@ struct SavedSongsView: View {
                                        musicPlayer: MusicPlayer.shared)
                         .frame(height: playerHeight)
                         .offset(y: isPlaying ? 0 : playerHeight*1.5)
-                        .animation(.easeIn(duration: 0.2), value: isPlaying)
+                        .animation(.easeInOut(duration: 0.2), value: isPlaying)
                     }
                 }
                 .background(Color.bienso)
@@ -65,33 +67,43 @@ struct SavedSongsView: View {
                 }
             }
             .onChange(of: tappedSong) {
-                if let tappedSong = tappedSong {
-                    isPlaying = true
-                    
-                    if isPlaying {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                            shouldAddPaddingToList = true
-                        }
-                    }
-                }
+                changeSong()
             }
         }
     }
     
     // MARK: Functions
     private func getSavedSongs() async {
-        songs = await spotifyMusic.getSavedSongs()
+        do {
+            songs = try await musicProvider.getSavedSongs()
+        } catch {
+            self.errorHandling.handle(error: error)
+        }
+        
     }
     
     private func getNextBatch() async {
-        let newBatch = await spotifyMusic.getNextSongBatch()
-        songs.append(contentsOf: newBatch)
-        isShowingLastSong = false
+        do {
+            let newBatch = try await musicProvider.getNextSongBatch()
+            songs.append(contentsOf: newBatch)
+            isShowingLastSong = false
+        } catch {
+            self.errorHandling.handle(error: error)
+        }
+    }
+    
+    private func changeSong() {
+        isPlaying = true
+        if isPlaying {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                shouldAddPaddingToList = true
+            }
+        }
     }
 }
 
 #Preview {
-    SavedSongsView(spotifyMusic: SpotifyMusic())
+    SavedSongsView(musicProvider: SpotifyMusic())
 }
 
 

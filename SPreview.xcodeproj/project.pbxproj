@@ -16,6 +16,9 @@
 		F0A7564F2ACABD3000E02CC2 /* MusicPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A7564E2ACABD3000E02CC2 /* MusicPlayer.swift */; };
 		F0A756512ACABD4900E02CC2 /* MusicPlayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A756502ACABD4900E02CC2 /* MusicPlayerError.swift */; };
 		F0A756532ACABD6500E02CC2 /* MusicProviderError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A756522ACABD6500E02CC2 /* MusicProviderError.swift */; };
+		F0B7A2BB2ACC444100E16732 /* ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B7A2BA2ACC444100E16732 /* ErrorHandling.swift */; };
+		F0B7A2BD2ACC44AA00E16732 /* ViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B7A2BC2ACC44AA00E16732 /* ViewExtension.swift */; };
+		F0B7A2C02ACC44D200E16732 /* ViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B7A2BF2ACC44D200E16732 /* ViewModifier.swift */; };
 		F0D5B58A2AC7FB930029FBCC /* SPreviewApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D5B5892AC7FB930029FBCC /* SPreviewApp.swift */; };
 		F0D5B58C2AC7FB930029FBCC /* SavedSongsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D5B58B2AC7FB930029FBCC /* SavedSongsView.swift */; };
 		F0D5B58E2AC7FB950029FBCC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F0D5B58D2AC7FB950029FBCC /* Assets.xcassets */; };
@@ -60,6 +63,10 @@
 		F0A7564E2ACABD3000E02CC2 /* MusicPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicPlayer.swift; sourceTree = "<group>"; };
 		F0A756502ACABD4900E02CC2 /* MusicPlayerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicPlayerError.swift; sourceTree = "<group>"; };
 		F0A756522ACABD6500E02CC2 /* MusicProviderError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicProviderError.swift; sourceTree = "<group>"; };
+		F0B7A2BA2ACC444100E16732 /* ErrorHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorHandling.swift; sourceTree = "<group>"; };
+		F0B7A2BC2ACC44AA00E16732 /* ViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtension.swift; sourceTree = "<group>"; };
+		F0B7A2BF2ACC44D200E16732 /* ViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModifier.swift; sourceTree = "<group>"; };
+		F0B7A2C12ACC541600E16732 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F0D5B5862AC7FB930029FBCC /* SPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F0D5B5892AC7FB930029FBCC /* SPreviewApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SPreviewApp.swift; sourceTree = "<group>"; };
 		F0D5B58B2AC7FB930029FBCC /* SavedSongsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedSongsView.swift; sourceTree = "<group>"; };
@@ -157,6 +164,22 @@
 			path = MusicPlayer;
 			sourceTree = "<group>";
 		};
+		F0B7A2B92ACC443400E16732 /* ErrorHandling */ = {
+			isa = PBXGroup;
+			children = (
+				F0B7A2BA2ACC444100E16732 /* ErrorHandling.swift */,
+			);
+			path = ErrorHandling;
+			sourceTree = "<group>";
+		};
+		F0B7A2BE2ACC44BD00E16732 /* Modifier */ = {
+			isa = PBXGroup;
+			children = (
+				F0B7A2BF2ACC44D200E16732 /* ViewModifier.swift */,
+			);
+			path = Modifier;
+			sourceTree = "<group>";
+		};
 		F0D5B57D2AC7FB930029FBCC = {
 			isa = PBXGroup;
 			children = (
@@ -182,7 +205,6 @@
 				F0D5B5AD2AC82B260029FBCC /* Presentation */,
 				F0A756462ACABB9B00E02CC2 /* MusicProvider */,
 				F0D5B5AE2AC82B6E0029FBCC /* Network */,
-				F0D5B59F2AC804020029FBCC /* Model */,
 				F0A7564D2ACABD1B00E02CC2 /* MusicPlayer */,
 				F0D5B5A22AC8063F0029FBCC /* Utils */,
 				F0D5B5972AC7FC5C0029FBCC /* Resource */,
@@ -202,6 +224,7 @@
 		F0D5B5972AC7FC5C0029FBCC /* Resource */ = {
 			isa = PBXGroup;
 			children = (
+				F0B7A2C12ACC541600E16732 /* Info.plist */,
 				F0D5B58D2AC7FB950029FBCC /* Assets.xcassets */,
 			);
 			path = Resource;
@@ -250,23 +273,18 @@
 		F0D5B5A22AC8063F0029FBCC /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				F0B7A2B92ACC443400E16732 /* ErrorHandling */,
+				F0B7A2BE2ACC44BD00E16732 /* Modifier */,
 				F0D5B5A62AC8070A0029FBCC /* Extension */,
-				F0D5B5A32AC8064C0029FBCC /* Constants */,
 			);
 			path = Utils;
-			sourceTree = "<group>";
-		};
-		F0D5B5A32AC8064C0029FBCC /* Constants */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Constants;
 			sourceTree = "<group>";
 		};
 		F0D5B5A62AC8070A0029FBCC /* Extension */ = {
 			isa = PBXGroup;
 			children = (
 				F0D5B5A72AC807170029FBCC /* ColorExtension.swift */,
+				F0B7A2BC2ACC44AA00E16732 /* ViewExtension.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -287,6 +305,7 @@
 				F0D5B5C62AC82DEB0029FBCC /* Manager */,
 				F0D5B5C12AC82CDC0029FBCC /* AuthController */,
 				F0D5B5BE2AC82CC10029FBCC /* Parser */,
+				F0D5B59F2AC804020029FBCC /* Model */,
 				F0D5B5D42AC82F1A0029FBCC /* Connectivity.swift */,
 				F0D5B5D62AC82F300029FBCC /* APIConstants.swift */,
 				F0D5B5D82AC82F6B0029FBCC /* NetworkError.swift */,
@@ -463,11 +482,13 @@
 				F0D5B5C82AC82E1C0029FBCC /* APIManager.swift in Sources */,
 				F0A756422ACA9E6200E02CC2 /* AuthorizationView.swift in Sources */,
 				F0D5B5D72AC82F300029FBCC /* APIConstants.swift in Sources */,
+				F0B7A2C02ACC44D200E16732 /* ViewModifier.swift in Sources */,
 				F0D5B5D52AC82F1A0029FBCC /* Connectivity.swift in Sources */,
 				F0D5B59C2AC7FE7D0029FBCC /* SongRowView.swift in Sources */,
 				F0D5B5C02AC82CCE0029FBCC /* DataParser.swift in Sources */,
 				F0D5B5D92AC82F6B0029FBCC /* NetworkError.swift in Sources */,
 				F0D5B58C2AC7FB930029FBCC /* SavedSongsView.swift in Sources */,
+				F0B7A2BB2ACC444100E16732 /* ErrorHandling.swift in Sources */,
 				F0A7564C2ACABCA600E02CC2 /* SpotifyMusic.swift in Sources */,
 				F06457FC2AC9719000FA2BA2 /* TitleAndSearchHeaderView.swift in Sources */,
 				F0D5B59E2AC803F70029FBCC /* SongPlayerView.swift in Sources */,
@@ -492,6 +513,7 @@
 				F0D5B5D12AC82ED20029FBCC /* TokenRequest.swift in Sources */,
 				F0D5B5CF2AC82EB20029FBCC /* RequestProtocol.swift in Sources */,
 				F0D5B5C52AC82D840029FBCC /* AuthControllerError.swift in Sources */,
+				F0B7A2BD2ACC44AA00E16732 /* ViewExtension.swift in Sources */,
 				F0D5B5C32AC82D460029FBCC /* AuthController.swift in Sources */,
 				F0D5B5AA2AC812C90029FBCC /* SliderView.swift in Sources */,
 				F0D5B5B52AC82C120029FBCC /* SpotifyPlaylistTracks.swift in Sources */,
@@ -633,9 +655,9 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SPreview/Resource/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
@@ -669,9 +691,9 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SPreview/Resource/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;

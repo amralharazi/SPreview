@@ -12,14 +12,16 @@ struct SPreviewApp: App {
     
     // MARK: Properties
     private let accessManager = TokenManager.shared
+    private var musicProvider = SpotifyMusic()
     
     // MARK: Content
     var body: some Scene {
         WindowGroup {
             if !accessManager.hasAccessToken() {
-                AuthorizationView()
+                AuthorizationView(musicProvider: musicProvider)
             } else {
-                SavedSongsView(spotifyMusic: SpotifyMusic())
+                SavedSongsView(musicProvider: musicProvider)
+                    .withErrorHandling()
             }
         }
     }

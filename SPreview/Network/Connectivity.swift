@@ -8,7 +8,14 @@
 import Alamofire
 
 class Connectivity {
-    class var isConnectedToInternet: Bool {
+        
+    static var isConnectedToInternet: Bool {
         return NetworkReachabilityManager()?.isReachable ?? false
+    }
+    
+    static func checkInternetConnection() throws {
+        if !Connectivity.isConnectedToInternet {
+            throw NetworkError.noConnection
+        }
     }
 }

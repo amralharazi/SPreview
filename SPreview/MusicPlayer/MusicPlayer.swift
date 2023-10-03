@@ -9,12 +9,16 @@ import AVFoundation
 import Foundation
 
 class MusicPlayer: NSObject,
-                    ObservableObject {
+                   ObservableObject {
     
     // MARK: Properties
     static let shared = MusicPlayer()
     private var player = AVPlayer()
-    @Published var hasFinished = false
+    private var progressObserver: Any?
+    
+    @Published var hasFinished: Bool?
+    @Published var progress: Double = 0
+    
     
     // MARK: Init
     private override init() {
@@ -24,47 +28,96 @@ class MusicPlayer: NSObject,
     
     // MARK: Deinit
     deinit {
-        player.removeObserver(self, forKeyPath: "rate")
+        player.removeObserver(self, forKeyPath: "timeControlStatus")
     }
     
     // MARK: Helpers
     private func configurePlayer() {
-        try? AVAudioSession.sharedInstance().setCategory(.playback,
-                                                         mode: .default,
-                                                         options: [.mixWithOthers, .allowAirPlay])
+        try? AVAudioSession.sharedInstance().setCategory(
+            .playback,
+            mode: .default,
+            options: [.duckOthers, .allowAirPlay])
         
         try? AVAudioSession.sharedInstance().setActive(true)
     }
     
     func preparePlayer(with url: String) throws {
-        guard let url = URL(string: url) else {
-            throw MusicPlayerError.audioFileNotFount
-        }
-        
-        let playerItem = AVPlayerItem(url: url)
-        player = AVPlayer(playerItem: playerItem)
-        player.addObserver(self, forKeyPath: "rate", options: .new, context: nil)
-
-        playMusic()
+        resetPlayer()
+        try configurePlayer(with: url)
     }
     
-    func playMusic() {
-        player.play()
+    private func configurePlayer(with url: String) throws {
+        guard let url = URL(string: url) else {
+            throw MusicPlayerError.audioFileNotFound
+        }
+        let playerItem = AVPlayerItem(url: url)
+        player = AVPlayer(playerItem: playerItem)
+        addObservers(to: player,with: playerItem)
+    }
+    
+    func playMusic() throws {
+        guard !isPlayingCurrently() else {
+            return
+        }
+        
+        do {
+            try Connectivity.checkInternetConnection()
+            player.play()
+        } catch {
+           throw NetworkError.noConnection
+        }
+    }
+    
+    private func resetPlayer() {
+        progress = 0
+        removeObservers()
+    }
+    
+    private func addObservers(to player: AVPlayer,
+                              with playerItem: AVPlayerItem) {
+        addTimeControlObserver(to: player)
+        addProgressObserver(to: playerItem)
+        
+    }
+    
+    private func addTimeControlObserver(to player: AVPlayer) {
+        player.addObserver(self,
+                           forKeyPath: "timeControlStatus",
+                           options: [.initial, .new],
+                           context: nil)
     }
     
     override func observeValue(forKeyPath keyPath: String?,
                                of object: Any?,
                                change: [NSKeyValueChangeKey : Any]?,
                                context: UnsafeMutableRawPointer?) {
-        if keyPath == "rate", let newRate = change?[.newKey] as? Float {
+        if keyPath == "timeControlStatus",
+           let newRate = change?[.newKey] as? Float {
             if newRate == 1.0 {
-                // Playback started
-//                print("Playback started")
                 hasFinished = false
             } else if newRate == 0.0 {
-//                print("Playback finished.")
                 hasFinished = true
             }
+        }
+    }
+    
+    private func addProgressObserver(to playerItem: AVPlayerItem) {
+        let interval = CMTime(seconds: 0.01,
+                              preferredTimescale: CMTimeScale(NSEC_PER_MSEC))
+        progressObserver = player.addPeriodicTimeObserver(
+            forInterval: interval, queue: .main) { [weak self] time in
+                guard let self = self else { return }
+                let duration = CMTimeGetSeconds(playerItem.duration)
+                let currentTime = CMTimeGetSeconds(time)
+                self.progress = currentTime / duration
+            }
+    }
+    
+    private func removeObservers() {
+        if let observerToken = self.progressObserver {
+            player.removeTimeObserver(observerToken)
+            self.progressObserver = nil
+            self.player.replaceCurrentItem(with: nil)
         }
     }
     
@@ -76,13 +129,9 @@ class MusicPlayer: NSObject,
         player.timeControlStatus == .playing
     }
     
-    func seekTo(startAt: CGFloat) {
-        let startTimeInSeconds: Double = startAt
-        let startTime = CMTime(seconds: startTimeInSeconds, preferredTimescale: 1)
+    func seekTo(startAt second: Double) {
+        let startTime = CMTime(seconds: second,
+                               preferredTimescale: 1)
         player.seek(to: startTime)
-        if !isPlayingCurrently() {
-            playMusic()
-        }
     }
-
 }

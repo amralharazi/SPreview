@@ -8,6 +8,6 @@
 import Foundation
 
 enum MusicPlayerError: Error {
-    case audioFileNotFount
+    case audioFileNotFound
     case cannotPlaySound
 }

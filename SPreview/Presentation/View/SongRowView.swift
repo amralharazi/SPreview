@@ -13,15 +13,15 @@ struct SongRowView: View {
     // MARK: Properties
     let song: SongItem
     let imgDimension: CGFloat
-    let isForSongPlayerView: Bool
+    let artistNameColor: Color
     
     // MARK: Init
     init(song: SongItem,
          imgDimension: CGFloat,
-         isForSongPlayerView: Bool = false) {
+         artistNameColor: Color = .gray.opacity(0.75)) {
         self.song = song
         self.imgDimension = imgDimension
-        self.isForSongPlayerView = isForSongPlayerView
+        self.artistNameColor = artistNameColor
     }
     
     // MARK: Content
@@ -44,7 +44,7 @@ struct SongRowView: View {
                 Text(song.artistName ?? "Unknown")
                     .font(.system(.subheadline, design: .rounded))
                     .lineLimit(1)
-                    .foregroundStyle( isForSongPlayerView ? .white : .gray.opacity(0.75))
+                    .foregroundStyle(artistNameColor)
             }
             
             Spacer()

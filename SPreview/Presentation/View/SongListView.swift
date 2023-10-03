@@ -13,8 +13,8 @@ struct SongListView: View {
     let imgDimension: CGFloat
     
     @Binding var songs: [SongItem]
-    @Binding var isShowingLastSong: Bool
     @Binding var tappedSong: SongItem?
+    @Binding var isShowingLastSong: Bool
     
     // MARK: Content
     var body: some View {
@@ -30,6 +30,7 @@ struct SongListView: View {
                             isShowingLastSong = true
                         }
                     }
+                    .contentShape(Rectangle())  
                     .onTapGesture {
                         tappedSong = song
                     }
@@ -46,7 +47,7 @@ struct SongListView: View {
 #Preview {
     SongListView(imgDimension: 80,
                  songs: .constant([]),
-                 isShowingLastSong: .constant(false),
-                 tappedSong: .constant(SongItem.dummySong))
+                 tappedSong: .constant(SongItem.dummySong),
+                 isShowingLastSong: .constant(false))
 }
 

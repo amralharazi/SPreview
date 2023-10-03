@@ -11,31 +11,16 @@ import SwiftUI
 struct SliderView: View {
     
     // MARK: Properties
-    let sliderHeight: CGFloat = 5
+    let sliderHeight: Double = 5
     
-    @Binding var startAnimating: Bool
-    @Binding var reset: Bool
-    //    {
-    //        didSet {
-    //            print("rest")
-    //            withAnimation {
-    //                slider = 0
-    //
-    //            }
-    //        animationDuration = 30.0
-    //        }
-    //    }
-    @Binding var seekToSecond: CGFloat
+    @StateObject var musicPlayer: MusicPlayer
     
-    @State var slider: CGFloat = 0
-    @State private var maxValue: CGFloat = UIScreen.main.bounds.width*0.95
-    @State var animate = false
-    
-    @State var timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
-    @State var animationDuration: Double = 30.0
+    @Binding var startingSecond: Double
     
     @State private var startedDragging = false
-    @State private var sliderWidthBeforeDragging: CGFloat = 0
+    @State private var sliderWidth: Double = 0
+    @State private var sliderWidthBeforeDragging: Double = 0
+    @State private var maxValue = UIScreen.main.bounds.width*0.95
     
     // MARK: Content
     var body: some View {
@@ -47,85 +32,63 @@ struct SliderView: View {
                     
                     Rectangle()
                         .foregroundStyle(Color.white)
-                        .frame(width: CGFloat(slider), height: sliderHeight)
+                        .frame(width: CGFloat(sliderWidth), height: sliderHeight)
                         .gesture(DragGesture(minimumDistance: 0)
-                            .onChanged({ dragValue in
-                                
-                                if !startedDragging  {
-                                    sliderWidthBeforeDragging = slider
-                                }
-                                startedDragging =  true
-                                
-                                let dragWidth = dragValue.translation.width
-                                
-                                slider = sliderWidthBeforeDragging + dragWidth
-                                
-                                // Ensure that slider stays within the desired range
-                                //                                            if slider < 0 {
-                                //                                                slider = 0
-                                //                                            } else if slider > maxValue {
-                                //                                                slider = maxValue
-                                //                                            }
-                                mapValue(value: slider )
-                                
+                            .onChanged({ gesture in
+                                startedDragging(with: gesture.translation.width)
+                                updateStartingSecond()
                             })
-                                .onEnded({ _ in
+                            .onEnded({ _ in
                                     startedDragging =  false
                                 })
                         )
-                        .onReceive(timer) { _ in
-                            animationDuration -= 0.1
-                            if animationDuration <= 0.0 {
-                                timer.upstream.connect().cancel()
-                            } else {
-                                withAnimation(.easeIn) {
-                                    slider += maxValue/30.0/10.0
-                                }
-                            }
-                        }
                 }
                 .frame(width: geometry.size.width, height: sliderHeight)
                 .clipShape(RoundedRectangle(cornerRadius: sliderHeight/2))
             }
         }
-        .onChange(of: startAnimating){
-            if startAnimating {
-                timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
-            } else {
-                timer.upstream.connect().cancel()
+        .onChange(of: musicPlayer.progress) {
+            withAnimation(.easeIn) {
+                sliderWidth = max(0, musicPlayer.progress * maxValue)
             }
         }
-        .onChange(of: reset){
-            print(reset)
-            if reset {
-                slider = 0
-                timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
-                startAnimating = true
-                animationDuration = 30.0
-            }
-            reset = false
-        }
-        
     }
     
     // MARK: Functions
-    private func mapValue(value: Double)  {
+    private func startedDragging(with dragValue: Double) {
+        if !startedDragging  {
+            sliderWidthBeforeDragging = sliderWidth
+        }
+        startedDragging =  true
+        
+        sliderWidth = sliderWidthBeforeDragging + dragValue
+        
+        if sliderWidth < 0 {
+            sliderWidth = 0
+        } else if sliderWidth > maxValue {
+            sliderWidth = maxValue
+        }
+    }
+    
+    private func updateStartingSecond() {
+        let value = mapValueToAudioDuration(sliderWidth)
+        startingSecond = value
+    }
+    
+    private func mapValueToAudioDuration(_ value: Double) -> Double {
         let minValue = 0.0
         let maxMappedValue = 30.0
         
         let clampedValue = min(max(value, minValue), maxValue)
-                let normalizedValue = (clampedValue - minValue) / (maxValue - minValue)
+        let normalizedValue = (clampedValue - minValue) / (maxValue - minValue)
         let mappedValue = (normalizedValue * (maxMappedValue))
         
-        animationDuration = 30-mappedValue
-        seekToSecond = mappedValue
+        return mappedValue
     }
-    
 }
 
 #Preview(traits: .sizeThatFitsLayout) {
-    SliderView( startAnimating: .constant(false),
-                reset: .constant(false),
-                seekToSecond: .constant(0))
+    SliderView(musicPlayer: MusicPlayer.shared,
+               startingSecond: .constant(0))
     .frame(height: 5)
 }

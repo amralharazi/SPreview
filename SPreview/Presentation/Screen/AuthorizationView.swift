@@ -10,6 +10,8 @@ import SwiftUI
 struct AuthorizationView: View {
     
     // MARK: Properties
+    let musicProvider: MusicProvider
+    
     @State private var presentAuthorizationWebView = false
     @State private var hasAuthorized = false
     
@@ -42,23 +44,24 @@ struct AuthorizationView: View {
             .fullScreenCover(isPresented: $presentAuthorizationWebView) {
                 prepareRequestView()
                     .fullScreenCover(isPresented: $hasAuthorized) {
-                    SavedSongsView(spotifyMusic: SpotifyMusic())
-                }
+                        SavedSongsView(musicProvider: SpotifyMusic())
+                    }
             }
         }
     }
     
     // MARK: Functions
-    private func prepareRequestView() -> Webview? {
-        guard let request = TokenRequest.getAccessTokenRequest() else {
-            return nil
+    private func prepareRequestView() -> WebView? {
+        if let request = musicProvider.getAuthorizationRequest() {
+            return WebView(req: request,
+                           requestManager: RequestManager(),
+                           hasAuthorized: $hasAuthorized)
         }
-        return Webview(req: request,
-                       requestManager: RequestManager(),
-                       hasAuthorized: $hasAuthorized)
+        
+        return nil
     }
 }
 
 #Preview {
-    AuthorizationView()
+    AuthorizationView(musicProvider: SpotifyMusic())
 }

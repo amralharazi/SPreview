@@ -56,25 +56,3 @@ enum TokenRequest: RequestProtocol {
         return headers
     }
 }
-
-// MARK: Helpers
-extension TokenRequest {
-    static func getAccessTokenRequest() -> URLRequest? {
-        let scopeAsString = APIConstants.scopes.joined(separator: " ")
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = APIConstants.authHost
-        components.path = "/authorize"
-        
-        let params  = [
-            "response_type": APIConstants.responseType,
-            "client_id": SpotifyAuthKeys.clientId,
-            "redirect_uri": APIConstants.redirectUri,
-            "scope": scopeAsString]
-        
-        components.queryItems = params.map({URLQueryItem(name: $0, value: $1)})
-        
-        guard let url = components.url else {return nil}
-        return try? URLRequest(url: url, method: .get)
-    }
-}

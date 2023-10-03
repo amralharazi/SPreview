@@ -13,7 +13,6 @@ class SpotifyMusic: MusicProvider {
     private let requestManager: RequestManagerProtocol
     private let accessManager: TokenManagerProtocol
     private var nextRequestUrl: String?
-    var delegate: MusicProviderDelegate?
     var hasReachedTheEnd: Bool {
         nextRequestUrl == nil
     }
@@ -26,26 +25,25 @@ class SpotifyMusic: MusicProvider {
     }
     
     // MARK: Functions
-    func requestAuthorization() async {
+    func getAuthorizationRequest() -> URLRequest? {
         if !accessManager.hasAccessToken() {
-            guard let request = TokenRequest.getAccessTokenRequest() else {return}
-            delegate?.presentWebView(with: request)
+            return createAuthorizationRequest()
         }
+        return nil
     }
     
-    func getSavedSongs() async -> [SongItem] {
+    func getSavedSongs() async throws -> [SongItem] {
         let request = SavedTracksRequest.getSavedTracks
         do {
             let response: SpotifyPlaylistTracks = try await requestManager.perform(request)
             self.nextRequestUrl = response.next
             return convertToSongItems(response)
         } catch {
-            delegate?.showPopup(with: error.localizedDescription)
-            return []
+            throw error
         }
     }
     
-    func getNextSongBatch() async -> [SongItem] {
+    func getNextSongBatch() async throws -> [SongItem] {
         guard let nextRequestUrl = nextRequestUrl else {return []}
         let request = SavedTracksRequest.getBatchFrom(url: nextRequestUrl)
         do {
@@ -53,14 +51,32 @@ class SpotifyMusic: MusicProvider {
             self.nextRequestUrl = response.next
             return convertToSongItems(response)
         } catch {
-            delegate?.showPopup(with: error.localizedDescription)
-            return []
+            throw error
         }
     }
 }
 
 // MARK: Helpers
 extension SpotifyMusic {
+    private func createAuthorizationRequest() -> URLRequest? {
+        let scopeAsString = APIConstants.scopes.joined(separator: " ")
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = APIConstants.authHost
+        components.path = "/authorize"
+        
+        let params  = [
+            "response_type": APIConstants.responseType,
+            "client_id": SpotifyAuthKeys.clientId,
+            "redirect_uri": APIConstants.redirectUri,
+            "scope": scopeAsString]
+        
+        components.queryItems = params.map({URLQueryItem(name: $0, value: $1)})
+        
+        guard let url = components.url else {return nil}
+        return try? URLRequest(url: url, method: .get)
+    }
+    
     private func convertToSongItems(_ response: SpotifyPlaylistTracks) -> [SongItem] {
         self.nextRequestUrl = response.next
         guard let items = response.items else {return []}
