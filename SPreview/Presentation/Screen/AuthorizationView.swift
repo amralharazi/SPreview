@@ -25,7 +25,7 @@ struct AuthorizationView: View {
                 Color.bienso
                     .ignoresSafeArea()
                 
-                VStack(spacing: 20) {
+                VStack(spacing: DrawingConstants.maxVerticalSpacing) {
                     Text("Authorize access to your Spotify \nto preview songs")
                         .font(.system(.title3))
                         .multilineTextAlignment(.center)
@@ -37,7 +37,7 @@ struct AuthorizationView: View {
                     .font(.system(.headline))
                     .frame(width: width/2, height: height*0.06)
                     .background(Color.brightestPerrywinkle)
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .clipShape(RoundedRectangle(cornerRadius: DrawingConstants.maxCornerRadius))
                 }
                 .padding()
             }

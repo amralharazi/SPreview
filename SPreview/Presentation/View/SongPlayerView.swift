@@ -24,12 +24,12 @@ struct SongPlayerView: View {
     var body: some View {
         ZStack(alignment: .top) {
             Color.brightestPerrywinkle
-                .clipShape(.rect(topLeadingRadius: 20,
-                                 topTrailingRadius: 20))
-                .shadow(radius: 5)
+                .clipShape(.rect(topLeadingRadius: DrawingConstants.maxCornerRadius,
+                                 topTrailingRadius: DrawingConstants.maxCornerRadius))
+                .shadow(radius: DrawingConstants.shadowRadius)
             
-            VStack(spacing: 20){
-                HStack(spacing: 10) {
+            VStack(spacing: DrawingConstants.maxVerticalSpacing){
+                HStack(spacing: DrawingConstants.minVerticalSpacing) {
                     SongRowView(song: song,
                                 imgDimension: imgDimension/1.5,
                                 artistNameColor: .white)
@@ -42,7 +42,7 @@ struct SongPlayerView: View {
                             .contentTransition(.symbolEffect(.replace))
                     }
                     .tint(.white)
-                    .frame(width: 30)
+                    .frame(width: 40)
                 }
                 
                 SliderView(musicPlayer: musicPlayer,
@@ -53,7 +53,7 @@ struct SongPlayerView: View {
         }
         .ignoresSafeArea()
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + AnimationConstants.minDuration) {
                 configurePlayer()
             }
         }

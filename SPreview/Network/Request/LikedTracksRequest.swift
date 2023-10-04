@@ -1,5 +1,5 @@
 //
-//  SavedTracksRequest.swift
+//  LikedTracksRequest.swift
 //  SPreview
 //
 //  Created by Amr on 30.09.2023.
@@ -8,14 +8,14 @@
 import Alamofire
 import Foundation
 
-enum SavedTracksRequest: RequestProtocol {
+enum LikedTracksRequest: RequestProtocol {
     
-    case getSavedTracks
+    case getLikedTracks
     case getBatchFrom(url: String)
     
     var host: String {
         switch self {
-        case .getSavedTracks:
+        case .getLikedTracks:
             return APIConstants.host
         case .getBatchFrom(let url):
             return url
@@ -24,7 +24,7 @@ enum SavedTracksRequest: RequestProtocol {
     
     var path: String {
         switch self {
-        case .getSavedTracks:
+        case .getLikedTracks:
            return "/v1/me/tracks"
         case .getBatchFrom(_):
             return ""

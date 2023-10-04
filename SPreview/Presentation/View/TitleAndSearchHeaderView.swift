@@ -27,10 +27,10 @@ struct TitleAndSearchHeaderView: View {
                 TextField("Serach for song", text: $searchTerm)
 
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, DrawingConstants.minVerticalSpacing)
             .padding(.horizontal)
             .background(.white.opacity(0.1))
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .clipShape(RoundedRectangle(cornerRadius: DrawingConstants.minCornerRadius))
             .disabled(true)
         }
     }

@@ -28,7 +28,7 @@ class MusicPlayer: NSObject,
     
     // MARK: Deinit
     deinit {
-        player.removeObserver(self, forKeyPath: "timeControlStatus")
+        player.removeObserver(self, forKeyPath: MusicPlayerConstants.timeStatus)
     }
     
     // MARK: Helpers
@@ -82,7 +82,7 @@ class MusicPlayer: NSObject,
     
     private func addTimeControlObserver(to player: AVPlayer) {
         player.addObserver(self,
-                           forKeyPath: "timeControlStatus",
+                           forKeyPath: MusicPlayerConstants.timeStatus,
                            options: [.initial, .new],
                            context: nil)
     }
@@ -91,18 +91,18 @@ class MusicPlayer: NSObject,
                                of object: Any?,
                                change: [NSKeyValueChangeKey : Any]?,
                                context: UnsafeMutableRawPointer?) {
-        if keyPath == "timeControlStatus",
+        if keyPath == MusicPlayerConstants.timeStatus,
            let newRate = change?[.newKey] as? Float {
-            if newRate == 1.0 {
+            if newRate == MusicPlayerConstants.playingRate {
                 hasFinished = false
-            } else if newRate == 0.0 {
+            } else if newRate == MusicPlayerConstants.endedRate  {
                 hasFinished = true
             }
         }
     }
     
     private func addProgressObserver(to playerItem: AVPlayerItem) {
-        let interval = CMTime(seconds: 0.01,
+        let interval = CMTime(seconds: MusicPlayerConstants.progressObserverInterval,
                               preferredTimescale: CMTimeScale(NSEC_PER_MSEC))
         progressObserver = player.addPeriodicTimeObserver(
             forInterval: interval, queue: .main) { [weak self] time in

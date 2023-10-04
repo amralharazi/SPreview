@@ -26,16 +26,16 @@ struct SongRowView: View {
     
     // MARK: Content
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: DrawingConstants.minVerticalSpacing) {
             WebImage(url: URL(string: song.image ?? ""))
                 .resizable()
                 .indicator(.activity)
                 .transition(.fade(duration: 0.5))
                 .scaledToFit()
                 .frame(width: imgDimension, height: imgDimension)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .clipShape(RoundedRectangle(cornerRadius: DrawingConstants.minCornerRadius))
             
-            VStack(alignment: .leading, spacing: 5) {
+            VStack(alignment: .leading, spacing: DrawingConstants.cellVerticalSpacing) {
                 Text(song.songName)
                     .font(.system(.headline, design: .rounded))
                     .lineLimit(1)

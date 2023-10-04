@@ -18,29 +18,33 @@ struct SongListView: View {
     
     // MARK: Content
     var body: some View {
-        ScrollView() {
-            LazyVStack {
-                ForEach(songs) { song in
-                    SongRowView(song: song,
-                                imgDimension: imgDimension)
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-                    .onAppear {
-                        if song == songs.last {
-                            isShowingLastSong = true
+        if songs.isEmpty {
+            ProgressView()
+        } else {
+            ScrollView() {
+                LazyVStack {
+                    ForEach(songs) { song in
+                        SongRowView(song: song,
+                                    imgDimension: imgDimension)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .onAppear {
+                            if song == songs.last {
+                                isShowingLastSong = true
+                            }
                         }
-                    }
-                    .contentShape(Rectangle())  
-                    .onTapGesture {
-                        tappedSong = song
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            tappedSong = song
+                        }
                     }
                 }
             }
+            .scrollIndicators(.hidden)
+            .scrollContentBackground(.hidden)
+            .scrollIndicators(.hidden)
+            .listStyle(.plain)
         }
-        .scrollIndicators(.hidden)
-        .scrollContentBackground(.hidden)
-        .scrollIndicators(.hidden)
-        .listStyle(.plain)
     }
 }
 

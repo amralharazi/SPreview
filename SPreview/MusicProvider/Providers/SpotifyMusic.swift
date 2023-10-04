@@ -33,7 +33,7 @@ class SpotifyMusic: MusicProvider {
     }
     
     func getSavedSongs() async throws -> [SongItem] {
-        let request = SavedTracksRequest.getSavedTracks
+        let request = LikedTracksRequest.getLikedTracks
         do {
             let response: SpotifyPlaylistTracks = try await requestManager.perform(request)
             self.nextRequestUrl = response.next
@@ -45,7 +45,7 @@ class SpotifyMusic: MusicProvider {
     
     func getNextSongBatch() async throws -> [SongItem] {
         guard let nextRequestUrl = nextRequestUrl else {return []}
-        let request = SavedTracksRequest.getBatchFrom(url: nextRequestUrl)
+        let request = LikedTracksRequest.getBatchFrom(url: nextRequestUrl)
         do {
             let response: SpotifyPlaylistTracks = try await requestManager.perform(request)
             self.nextRequestUrl = response.next
@@ -78,21 +78,26 @@ extension SpotifyMusic {
     }
     
     private func convertToSongItems(_ response: SpotifyPlaylistTracks) -> [SongItem] {
-        self.nextRequestUrl = response.next
-        guard let items = response.items else {return []}
-        return items.map({SongItem(songName: $0.track?.name ?? "",
-                                   artistName: $0.track?.album?.artists.first?.name,
-                                   image: getSmallestimage(from: $0.track?.album?.images),
-                                   previewUrl: $0.track?.preview_url)})
+        let items = response.items ?? []
+        return items.map { item in
+             let track = item.track
+            return createSongItem(from: track)
+        }
     }
     
-    private func getSmallestimage(from images: [SpotifyImage]?) -> String {
-        if let images = images,
-           images.count > 1 {
-            let nonNilImages = images.compactMap({$0.height != nil ? $0 : nil})
-            return nonNilImages.sorted(by: {$0.height! < $1.height!}).first?.url ?? ""
-        } else {
-            return images?.first?.url ?? ""
-        }
+    private func createSongItem(from track: SpotifyTrack?) -> SongItem {
+        let songName = track?.name ?? ""
+        let artistName = track?.album?.artists.first?.name
+        let image = getSmallestImageUrl(from: track?.album?.images)
+        let previewUrl = track?.preview_url
+        return SongItem(songName: songName,
+                        artistName: artistName,
+                        image: image,
+                        previewUrl: previewUrl)
+    }
+    
+    private func getSmallestImageUrl(from images: [SpotifyImage]?) -> String {
+        let nonNilImages = images?.compactMap { $0.height != nil ? $0 : nil } ?? []
+        return nonNilImages.sorted { $0.height! < $1.height! }.first?.url ?? ""
     }
 }

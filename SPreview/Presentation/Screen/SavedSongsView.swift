@@ -18,46 +18,51 @@ struct SavedSongsView: View {
     @State private var tappedSong: SongItem?
     @State private var isShowingLastSong = false
     @State private var shouldAddPaddingToList = false
-    @State private var isPlaying = false {
-        didSet {
-            if !isPlaying {
-                shouldAddPaddingToList = false
-            }
-        }
-    }
+    @State private var isPlaying = false
     
     // MARK: Content
     var body: some View {
         GeometryReader { geometry in
             let imgDimension = geometry.size.width/6
-            let playerHeight = imgDimension*1.5
+            let playerHeight = geometry.size.height/6
             
-            NavigationView {
+//            NavigationView {
                 ZStack(alignment: .bottom) {
-                    VStack(spacing: 10) {
+                    VStack(spacing: DrawingConstants.minVerticalSpacing) {
                         TitleAndSearchHeaderView()
-                        
+                                                
                         SongListView(imgDimension: imgDimension,
                                      songs: $songs,
                                      tappedSong: $tappedSong.animation(),
                                      isShowingLastSong: $isShowingLastSong)
-                        .padding(.bottom, shouldAddPaddingToList ? playerHeight : 0)
+                        .padding(.bottom, shouldAddPaddingToList ? playerHeight/1.5 : 0)
+                        
+                        Spacer()
+
                         
                     }
                     .padding(.horizontal)
                     
-                    if let song = tappedSong {
-                        SongPlayerView(song: song,
-                                       imgDimension: imgDimension,
-                                       musicPlayer: MusicPlayer.shared)
-                        .frame(height: playerHeight)
-                        .offset(y: isPlaying ? 0 : playerHeight*1.5)
-                        .animation(.easeInOut(duration: 0.2), value: isPlaying)
+                    VStack {
+                        Spacer()
+                        
+                        
+                        if let song = tappedSong {
+                            SongPlayerView(song: song,
+                                           imgDimension: imgDimension,
+                                           musicPlayer: MusicPlayer.shared)
+                            .frame(height: playerHeight)
+                            .offset(y: isPlaying ? 0 : playerHeight*1.5)
+                            .animation(.easeInOut(duration: AnimationConstants.minDuration), value: isPlaying)
+                        }
                     }
+
                 }
                 .background(Color.bienso)
-            }
-            .toolbar(.hidden, for: .navigationBar)
+                .ignoresSafeArea(edges: .bottom)
+
+//            }
+//            .toolbar(.hidden, for: .navigationBar)
             .task {
                 await getSavedSongs()
             }
@@ -95,7 +100,7 @@ struct SavedSongsView: View {
     private func changeSong() {
         isPlaying = true
         if isPlaying {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + AnimationConstants.minDuration) {
                 shouldAddPaddingToList = true
             }
         }
