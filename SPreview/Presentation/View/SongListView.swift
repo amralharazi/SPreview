@@ -39,6 +39,7 @@ struct SongListView: View {
                         }
                     }
                 }
+                Spacer(minLength: imgDimension*2)
             }
             .scrollIndicators(.hidden)
             .scrollContentBackground(.hidden)

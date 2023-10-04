@@ -10,7 +10,9 @@ import SwiftUI
 struct TitleAndSearchHeaderView: View {
     
     // MARK: Properties
-    @State private var searchTerm = ""
+    @Binding var searchTerm: String
+    
+    @FocusState private var isEditing
     
     // MARK: Content
     var body: some View {
@@ -25,18 +27,19 @@ struct TitleAndSearchHeaderView: View {
                 Image(systemName: "magnifyingglass")
                 
                 TextField("Serach for song", text: $searchTerm)
+                    .focused($isEditing)
+                    .autocorrectionDisabled()
 
             }
             .padding(.vertical, DrawingConstants.minVerticalSpacing)
             .padding(.horizontal)
             .background(.white.opacity(0.1))
             .clipShape(RoundedRectangle(cornerRadius: DrawingConstants.minCornerRadius))
-            .disabled(true)
         }
     }
 }
 
 #Preview {
-    TitleAndSearchHeaderView()
+    TitleAndSearchHeaderView(searchTerm: .constant(""))
 }
 

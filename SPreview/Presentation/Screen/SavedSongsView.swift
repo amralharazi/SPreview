@@ -7,18 +7,20 @@
 
 import SwiftUI
 
+
 struct SavedSongsView: View {
     
     // MARK: Properties
-    let musicProvider: MusicProvider
+    @State var musicProvider: MusicProvider
     
     @EnvironmentObject var errorHandling: ErrorHandling
     
-    @State private var songs = [SongItem]()
+    @State private var likedSongs = [SongItem]()
+    @State private var searchedSongs = [SongItem]()
     @State private var tappedSong: SongItem?
     @State private var isShowingLastSong = false
-    @State private var shouldAddPaddingToList = false
     @State private var isPlaying = false
+    @State private var searchTerm = ""
     
     // MARK: Content
     var body: some View {
@@ -26,26 +28,22 @@ struct SavedSongsView: View {
             let imgDimension = geometry.size.width/6
             let playerHeight = geometry.size.height/6
             
-//            NavigationView {
+            NavigationView {
                 ZStack(alignment: .bottom) {
                     VStack(spacing: DrawingConstants.minVerticalSpacing) {
-                        TitleAndSearchHeaderView()
-                                                
+                        TitleAndSearchHeaderView(searchTerm: $searchTerm)
+                        
                         SongListView(imgDimension: imgDimension,
-                                     songs: $songs,
+                                     songs: searchTerm == "" ? $likedSongs : $searchedSongs,
                                      tappedSong: $tappedSong.animation(),
                                      isShowingLastSong: $isShowingLastSong)
-                        .padding(.bottom, shouldAddPaddingToList ? playerHeight/1.5 : 0)
                         
                         Spacer()
-
-                        
                     }
                     .padding(.horizontal)
                     
                     VStack {
                         Spacer()
-                        
                         
                         if let song = tappedSong {
                             SongPlayerView(song: song,
@@ -53,16 +51,19 @@ struct SavedSongsView: View {
                                            musicPlayer: MusicPlayer.shared)
                             .frame(height: playerHeight)
                             .offset(y: isPlaying ? 0 : playerHeight*1.5)
-                            .animation(.easeInOut(duration: AnimationConstants.minDuration), value: isPlaying)
+                            .animation(.easeInOut(duration: AnimationConstants.minDuration), 
+                                       value: isPlaying)
                         }
                     }
-
                 }
                 .background(Color.bienso)
                 .ignoresSafeArea(edges: .bottom)
-
-//            }
-//            .toolbar(.hidden, for: .navigationBar)
+                
+            }
+            .toolbar(.hidden, for: .navigationBar)
+            .onTapGesture {
+                UIApplication.shared.dismissKeyboard()
+            }
             .task {
                 await getSavedSongs()
             }
@@ -72,7 +73,17 @@ struct SavedSongsView: View {
                 }
             }
             .onChange(of: tappedSong) {
-                changeSong()
+                if isPlaying == false {
+                    isPlaying = true
+                }
+            }
+            .onChange(of: searchTerm) {
+                let nonEmptyTerm = searchTerm.trimmingCharacters(in: .whitespacesAndNewlines)
+                if nonEmptyTerm.isEmpty {
+                    musicProvider.searchTerm = ""
+                } else {
+                    Task{ await searchForSongsWith(searchTerm: nonEmptyTerm)}
+                }
             }
         }
     }
@@ -80,7 +91,16 @@ struct SavedSongsView: View {
     // MARK: Functions
     private func getSavedSongs() async {
         do {
-            songs = try await musicProvider.getSavedSongs()
+            likedSongs = try await musicProvider.getLikedSongs()
+        } catch {
+            self.errorHandling.handle(error: error)
+        }
+        
+    }
+    
+    private func searchForSongsWith(searchTerm: String) async {
+        do {
+            searchedSongs = try await musicProvider.getSongsWith(searchTerm: searchTerm)
         } catch {
             self.errorHandling.handle(error: error)
         }
@@ -90,19 +110,10 @@ struct SavedSongsView: View {
     private func getNextBatch() async {
         do {
             let newBatch = try await musicProvider.getNextSongBatch()
-            songs.append(contentsOf: newBatch)
+            likedSongs.append(contentsOf: newBatch)
             isShowingLastSong = false
         } catch {
             self.errorHandling.handle(error: error)
-        }
-    }
-    
-    private func changeSong() {
-        isPlaying = true
-        if isPlaying {
-            DispatchQueue.main.asyncAfter(deadline: .now() + AnimationConstants.minDuration) {
-                shouldAddPaddingToList = true
-            }
         }
     }
 }

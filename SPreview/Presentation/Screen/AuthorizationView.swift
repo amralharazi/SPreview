@@ -10,7 +10,7 @@ import SwiftUI
 struct AuthorizationView: View {
     
     // MARK: Properties
-    let musicProvider: MusicProvider
+    let musicProvider: any MusicProvider
     
     @State private var presentAuthorizationWebView = false
     @State private var hasAuthorized = false

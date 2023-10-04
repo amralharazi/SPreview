@@ -12,10 +12,13 @@ class SpotifyMusic: MusicProvider {
     // MARK: Properties
     private let requestManager: RequestManagerProtocol
     private let accessManager: TokenManagerProtocol
-    private var nextRequestUrl: String?
+    private var nextLikedSongsRequestUrl: String?
+    private var nextSearchedSongsRequestUrl: String?
+    var searchTerm: String = ""
     var hasReachedTheEnd: Bool {
-        nextRequestUrl == nil
+        isSearching ? nextSearchedSongsRequestUrl == nil : nextLikedSongsRequestUrl == nil
     }
+    var isSearching = false
     
     // MARK: Init
     init(requestManager: RequestManagerProtocol = RequestManager(),
@@ -32,27 +35,25 @@ class SpotifyMusic: MusicProvider {
         return nil
     }
     
-    func getSavedSongs() async throws -> [SongItem] {
-        let request = LikedTracksRequest.getLikedTracks
-        do {
-            let response: SpotifyPlaylistTracks = try await requestManager.perform(request)
-            self.nextRequestUrl = response.next
-            return convertToSongItems(response)
-        } catch {
-            throw error
+    func getLikedSongs() async throws -> [SongItem] {
+        let request = TracksRequest.getLikedTracks
+        return try await getSongsWith(request: request)
+    }
+    
+    func getSongsWith(searchTerm: String) async throws -> [SongItem] {
+        let request = TracksRequest.getSongsWith(searchTerm: searchTerm)
+        DispatchQueue.main.async {
+            self.searchTerm = searchTerm
         }
+        isSearching = true
+        return try await getSongsWith(request: request)
     }
     
     func getNextSongBatch() async throws -> [SongItem] {
-        guard let nextRequestUrl = nextRequestUrl else {return []}
-        let request = LikedTracksRequest.getBatchFrom(url: nextRequestUrl)
-        do {
-            let response: SpotifyPlaylistTracks = try await requestManager.perform(request)
-            self.nextRequestUrl = response.next
-            return convertToSongItems(response)
-        } catch {
-            throw error
-        }
+        guard !hasReachedTheEnd else {return []}
+        guard let nextRequestUrl = searchTerm == "" ? nextLikedSongsRequestUrl : nextSearchedSongsRequestUrl else {return []}
+        let request = TracksRequest.getBatchFrom(url: nextRequestUrl)
+        return try await getSongsWith(request: request)
     }
 }
 
@@ -77,10 +78,33 @@ extension SpotifyMusic {
         return try? URLRequest(url: url, method: .get)
     }
     
-    private func convertToSongItems(_ response: SpotifyPlaylistTracks) -> [SongItem] {
-        let items = response.items ?? []
-        return items.map { item in
-             let track = item.track
+    private func getSongsWith(request: RequestProtocol) async throws -> [SongItem] {
+
+        do {
+            
+            
+            if !isSearching {
+                let response: SpotifyTracks = try await requestManager.perform(request)
+                self.nextLikedSongsRequestUrl = response.next
+                let tracks = response.items?.compactMap({$0.track != nil ? $0 : nil}).map({$0.track!}) ?? []
+                return convertToSongItems(tracks)
+            } else {
+                let response: SpotifySearchResult = try await requestManager.perform(request)
+                self.nextSearchedSongsRequestUrl = response.tracks?.next
+                let tracks = response.tracks?.items ?? []
+                isSearching = false
+                return convertToSongItems(tracks)
+            }
+            
+            
+            
+        } catch {
+            throw error
+        }
+    }
+    
+    private func convertToSongItems(_ tracks: [SpotifyTrack]) -> [SongItem] {
+        return tracks.map { track in
             return createSongItem(from: track)
         }
     }

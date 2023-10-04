@@ -9,8 +9,10 @@ import Foundation
 
 protocol MusicProvider {
     var hasReachedTheEnd: Bool { get }
+    var searchTerm: String {get set}
     
     func getAuthorizationRequest() -> URLRequest?
-    func getSavedSongs() async throws -> [SongItem]
+    func getLikedSongs() async throws -> [SongItem]
+    func getSongsWith(searchTerm: String) async throws -> [SongItem]
     func getNextSongBatch() async throws -> [SongItem]
 }
