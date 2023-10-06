@@ -26,12 +26,13 @@ struct SavedSongsView: View {
     var body: some View {
         GeometryReader { geometry in
             let imgDimension = geometry.size.width/6
-            let playerHeight = geometry.size.height/6
+            let playerHeight = geometry.size.height/5.5 + UIScreen.safeArea.bottom
             
             NavigationView {
                 ZStack(alignment: .bottom) {
                     VStack(spacing: DrawingConstants.minVerticalSpacing) {
                         TitleAndSearchHeaderView(searchTerm: $searchTerm)
+                            .frame(height: 120)
                         
                         SongListView(imgDimension: imgDimension,
                                      songs: searchTerm == "" ? $likedSongs : $searchedSongs,

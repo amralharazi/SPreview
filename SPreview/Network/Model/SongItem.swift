@@ -13,6 +13,7 @@ struct SongItem: Identifiable, Equatable {
     var artistName: String?
     var image: String?
     var previewUrl: String?
+    var spotifyUri: String?
 }
 
 extension SongItem {

@@ -45,7 +45,17 @@ struct AuthorizationView: View {
                 prepareRequestView()
                     .fullScreenCover(isPresented: $hasAuthorized) {
                         SavedSongsView(musicProvider: SpotifyMusic())
+                            .withErrorHandling()
                     }
+            }
+            .onAppear {
+                [kSecClassGenericPassword, kSecClassInternetPassword, kSecClassCertificate, kSecClassKey, kSecClassIdentity].forEach {
+                         SecItemDelete([
+                          kSecClass: $0,
+                          kSecAttrSynchronizable: kSecAttrSynchronizableAny
+                        ] as CFDictionary)
+                        
+                      }
             }
         }
     }
@@ -57,7 +67,6 @@ struct AuthorizationView: View {
                            requestManager: RequestManager(),
                            hasAuthorized: $hasAuthorized)
         }
-        
         return nil
     }
 }

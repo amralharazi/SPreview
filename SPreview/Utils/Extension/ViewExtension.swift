@@ -9,6 +9,6 @@ import SwiftUI
 
 extension View {
     func withErrorHandling() -> some View {
-        modifier(HandleErrorsByShowingAlertViewModifier())
+        modifier(HandleErrorViewModifier())
     }
 }

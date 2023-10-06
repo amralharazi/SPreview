@@ -32,13 +32,21 @@ class APIManager: APIManagerProtocol {
         }
         
         if let url = URL(string: "\(request.host)\(request.path)") {
-            return try await withUnsafeThrowingContinuation({ continuation in
+            return try await withCheckedThrowingContinuation({ continuation in
                 AF.request(url,
                            method: request.requestType,
                            parameters: request.params,
                            encoding: request.encoding,
                            headers: _headers).responseData { response in
-//                    debugPrint(response)
+                    debugPrint(response)
+                    
+                    if response.response?.statusCode == 400 ||
+                        response.response?.statusCode == 401 {
+                        let error = SpotifyError.notAuthorized
+                        continuation.resume(throwing: error)
+                        return
+                    }
+                    
                     
                     switch response.result {
                         

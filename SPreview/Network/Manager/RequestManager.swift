@@ -31,7 +31,7 @@ class RequestManager: RequestManagerProtocol {
     // MARK: Helpers
     func perform<T: Decodable>(_ request: RequestProtocol)
     async throws -> T {
-
+        
         let authToken = try await requestAccessToken()
         let data = try await apiManager.perform(request,
                                                 authToken: authToken)
@@ -41,13 +41,13 @@ class RequestManager: RequestManagerProtocol {
     }
     
     func requestAccessToken() async throws -> String {
-      if accessTokenManager.isTokenValid() {
-        return accessTokenManager.fetchAccessToken()
-      }
-
-      let data = try await apiManager.requestToken()
-      let token: AccessTokens = try parser.parse(data: data)
-      try accessTokenManager.refreshWith(token: token)
-      return token.access_token ?? ""
+        if accessTokenManager.isTokenValid() {
+            return accessTokenManager.fetchAccessToken()
+        }
+        let data = try await apiManager.requestToken()
+        let token: AccessTokens = try parser.parse(data: data)
+        try accessTokenManager.refreshWith(token: token)
+        return token.access_token ?? ""
+        
     }
 }

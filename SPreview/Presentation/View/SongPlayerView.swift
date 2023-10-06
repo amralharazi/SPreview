@@ -22,40 +22,71 @@ struct SongPlayerView: View {
     
     // MARK: Content
     var body: some View {
-        ZStack(alignment: .top) {
-            Color.brightestPerrywinkle
+        ZStack(alignment: .bottom) {
+            
+            ZStack(alignment: .top) {
+                Color.brightestPerrywinkle
+                    .clipShape(.rect(topLeadingRadius: 16,
+                                     topTrailingRadius: 16))
+                    .shadow(radius: DrawingConstants.shadowRadius)
+                
+                VStack(spacing: DrawingConstants.maxVerticalSpacing){
+                    
+                    HStack(spacing: DrawingConstants.minVerticalSpacing) {
+                        SongRowView(song: song,
+                                    imgDimension: imgDimension/1.5,
+                                    artistNameColor: .white)
+                        
+                        Button {
+                            togglePlayer()
+                        } label: {
+                            Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                                .font(.system(.headline))
+                                .contentTransition(.symbolEffect(.replace))
+                        }
+                        .tint(.white)
+                        .frame(width: 40)
+                    }
+                    
+                    SliderView(musicPlayer: musicPlayer,
+                               startingSecond: $startingSecond)
+                    .frame(height: 5)
+                }
+                .padding()
+            }
+            
+            Color.bienso
                 .clipShape(.rect(topLeadingRadius: DrawingConstants.maxCornerRadius,
                                  topTrailingRadius: DrawingConstants.maxCornerRadius))
                 .shadow(radius: DrawingConstants.shadowRadius)
-            
-            VStack(spacing: DrawingConstants.maxVerticalSpacing){
-                HStack(spacing: DrawingConstants.minVerticalSpacing) {
-                    SongRowView(song: song,
-                                imgDimension: imgDimension/1.5,
-                                artistNameColor: .white)
-                    
-                    Button {
-                        togglePlayer()
-                    } label: {
-                        Image(systemName: isPlaying ? "pause.fill" : "play.fill")
-                            .font(.system(.headline))
-                            .contentTransition(.symbolEffect(.replace))
+                .overlay(alignment: .center, content: {
+                    Button("Play Song Instead") {
+                        if let url = song.spotifyUri {
+                            print(url)
+                            guard let url = URL(string: url) else {
+                              return 
+                            }
+
+                            if #available(iOS 10.0, *) {
+                                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                            } else {
+                                UIApplication.shared.openURL(url)
+                            }
+
+                        }
                     }
-                    .tint(.white)
-                    .frame(width: 40)
-                }
-                
-                SliderView(musicPlayer: musicPlayer,
-                           startingSecond: $startingSecond)
-                .frame(height: 5)
-            }
-            .padding()
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.white)
+                    .offset(y: -5)
+                })
+                .frame(height: 44+UIScreen.safeArea.bottom)
+            
         }
         .ignoresSafeArea()
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + AnimationConstants.minDuration) {
-                configurePlayer()
-            }
+//            DispatchQueue.main.asyncAfter(deadline: .now() + AnimationConstants.minDuration) {
+//                configurePlayer()
+//            }
         }
         .onChange(of: song) {
             configurePlayer()
@@ -81,7 +112,7 @@ struct SongPlayerView: View {
         
         prepareSong(with: previewUrl)
     }
-
+    
     private func prepareSong(with url: String) {
         do {
             try musicPlayer.preparePlayer(with: url)
@@ -117,7 +148,7 @@ struct SongPlayerView: View {
     SongPlayerView(song: SongItem.dummySong,
                    imgDimension: 80,
                    musicPlayer: MusicPlayer.shared)
-    .frame(height: 120)
+    .frame(height: 170)
     .padding(.top)
 }
 

@@ -29,10 +29,10 @@ class SpotifyMusic: MusicProvider {
     
     // MARK: Functions
     func getAuthorizationRequest() -> URLRequest? {
-        if !accessManager.hasAccessToken() {
+//        if !accessManager.hasAccessToken() {
             return createAuthorizationRequest()
-        }
-        return nil
+//        }
+//        return nil
     }
     
     func getLikedSongs() async throws -> [SongItem] {
@@ -79,7 +79,7 @@ extension SpotifyMusic {
     }
     
     private func getSongsWith(request: RequestProtocol) async throws -> [SongItem] {
-
+        
         do {
             
             
@@ -114,10 +114,12 @@ extension SpotifyMusic {
         let artistName = track?.album?.artists.first?.name
         let image = getSmallestImageUrl(from: track?.album?.images)
         let previewUrl = track?.preview_url
+        let spotifyUri = track?.uri
         return SongItem(songName: songName,
                         artistName: artistName,
                         image: image,
-                        previewUrl: previewUrl)
+                        previewUrl: previewUrl,
+                        spotifyUri: spotifyUri)
     }
     
     private func getSmallestImageUrl(from images: [SpotifyImage]?) -> String {

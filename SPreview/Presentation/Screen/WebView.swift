@@ -27,7 +27,7 @@ struct WebView: UIViewRepresentable {
         self.requestManager = requestManager
         _hasAuthorized = hasAuthorized
     }
-        
+    
     // MARK: Functions
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -38,8 +38,8 @@ struct WebView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: WKWebView, context: Context) {
-        uiView.navigationDelegate = context.coordinator
         uiView.load(request)
+        uiView.navigationDelegate = context.coordinator
     }
     
     func goBack(){
@@ -72,7 +72,7 @@ class Coordinator: NSObject, WKNavigationDelegate {
             Task {
                 let request = TokenRequest.getAuthKeys(code: token)
                 let response: AccessTokens = try await parent.requestManager.perform(request)
-                try? parent.requestManager.accessTokenManager.refreshWith(token: response)
+                try parent.requestManager.accessTokenManager.refreshWith(token: response)
                 parent.hasAuthorized = true
             }
         }
