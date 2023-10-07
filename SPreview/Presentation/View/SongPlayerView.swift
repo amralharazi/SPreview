@@ -12,6 +12,7 @@ struct SongPlayerView: View {
     // MARK: Properties
     let song: SongItem
     let imgDimension: CGFloat
+   
     
     @EnvironmentObject var errorHandling: ErrorHandling
     
@@ -19,6 +20,7 @@ struct SongPlayerView: View {
     
     @State private var isPlaying = false
     @State private var startingSecond: Double = 0
+    @State private var bottomSafeAreaHeight: CGFloat = 0
     
     // MARK: Content
     var body: some View {
@@ -64,26 +66,27 @@ struct SongPlayerView: View {
                         if let url = song.spotifyUri {
                             print(url)
                             guard let url = URL(string: url) else {
-                              return 
+                                return
                             }
-
+                            
                             if #available(iOS 10.0, *) {
                                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
                             } else {
                                 UIApplication.shared.openURL(url)
                             }
-
+                            
                         }
                     }
                     .fontWeight(.semibold)
                     .foregroundStyle(.white)
                     .offset(y: -5)
                 })
-                .frame(height: 44+UIScreen.safeArea.bottom)
+                .frame(height: 44+bottomSafeAreaHeight)
             
         }
         .ignoresSafeArea()
         .onAppear {
+            bottomSafeAreaHeight = UIScreen.safeArea.bottom
 //            DispatchQueue.main.asyncAfter(deadline: .now() + AnimationConstants.minDuration) {
 //                configurePlayer()
 //            }

@@ -68,10 +68,10 @@ class Coordinator: NSObject, WKNavigationDelegate {
               urlAbsoluteString.contains("code=") else {return}
         if let responseWithToken = urlAbsoluteString.components(separatedBy: "code=").last,
            let token = responseWithToken.components(separatedBy: "&").first {
-            
+                        
             Task {
                 let request = TokenRequest.getAuthKeys(code: token)
-                let response: AccessTokens = try await parent.requestManager.perform(request)
+                let response: AccessTokens = try await parent.requestManager.requestAuthKeys(request)
                 try parent.requestManager.accessTokenManager.refreshWith(token: response)
                 parent.hasAuthorized = true
             }

@@ -48,15 +48,6 @@ struct AuthorizationView: View {
                             .withErrorHandling()
                     }
             }
-            .onAppear {
-                [kSecClassGenericPassword, kSecClassInternetPassword, kSecClassCertificate, kSecClassKey, kSecClassIdentity].forEach {
-                         SecItemDelete([
-                          kSecClass: $0,
-                          kSecAttrSynchronizable: kSecAttrSynchronizableAny
-                        ] as CFDictionary)
-                        
-                      }
-            }
         }
     }
     

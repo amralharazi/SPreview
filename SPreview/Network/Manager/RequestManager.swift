@@ -10,6 +10,7 @@ import Foundation
 protocol RequestManagerProtocol {
     var accessTokenManager: TokenManagerProtocol { get }
     func perform<T: Decodable>(_ request: RequestProtocol) async throws -> T
+    func requestAuthKeys<T: Decodable>(_ request: RequestProtocol) async throws -> T
 }
 
 class RequestManager: RequestManagerProtocol {
@@ -31,16 +32,23 @@ class RequestManager: RequestManagerProtocol {
     // MARK: Helpers
     func perform<T: Decodable>(_ request: RequestProtocol)
     async throws -> T {
-        
-        let authToken = try await requestAccessToken()
+        let authToken = try await getAccessToken()
+       return try await perfrom(request: request, authToken: authToken)
+    }
+    
+    func requestAuthKeys<T: Decodable>(_ request: RequestProtocol) async throws -> T {
+        return try await perfrom(request: request)
+    }
+    
+    private func perfrom<T: Decodable>(request: RequestProtocol, 
+                                       authToken: String? = nil) async throws -> T{
         let data = try await apiManager.perform(request,
                                                 authToken: authToken)
-        
         let decoded: T = try parser.parse(data: data)
         return decoded
     }
     
-    func requestAccessToken() async throws -> String {
+    func getAccessToken() async throws -> String {
         if accessTokenManager.isTokenValid() {
             return accessTokenManager.fetchAccessToken()
         }

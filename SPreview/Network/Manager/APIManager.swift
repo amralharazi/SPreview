@@ -10,7 +10,7 @@ import Alamofire
 
 protocol APIManagerProtocol {
     func perform(_ request: RequestProtocol,
-                 authToken: String) async throws -> Data
+                 authToken: String?) async throws -> Data
     func requestToken() async throws -> Data
 }
 
@@ -21,13 +21,13 @@ class APIManager: APIManagerProtocol {
     
     // MARK: Helpers
     func perform(_ request: RequestProtocol,
-                 authToken: String = "") async throws -> Data {
+                 authToken: String? = nil) async throws -> Data {
         
         try Connectivity.checkInternetConnection()
         
         var _headers = request.headers
-        
-        if request.needsAuthKey {
+        if let authToken = authToken,
+           request.needsAuthKey {
             _headers["Authorization"] = "Bearer \(authToken)"
         }
         
@@ -40,17 +40,19 @@ class APIManager: APIManagerProtocol {
                            headers: _headers).responseData { response in
                     debugPrint(response)
                     
-                    if response.response?.statusCode == 400 ||
-                        response.response?.statusCode == 401 {
-                        let error = SpotifyError.notAuthorized
-                        continuation.resume(throwing: error)
-                        return
-                    }
-                    
+                   
                     
                     switch response.result {
                         
                     case .success(let data):
+                        
+                        if authToken != "" && (response.response?.statusCode == 400 ||
+                            response.response?.statusCode == 401) {
+                            let error = SpotifyError.notAuthorized
+                            continuation.resume(throwing: error)
+                            return
+                        }
+                        
 //                        print(String(data: data, encoding: .utf8) as Any)
                         continuation.resume(returning: data)
                         return
