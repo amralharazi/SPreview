@@ -28,11 +28,21 @@ class SpotifyMusic: MusicProvider {
     }
     
     // MARK: Functions
+    func getAuthToken(from url: String, completion: @escaping (Bool) -> Void) {
+        if let token = extractTokenFromURL(url) {
+            Task {
+                let request = TokenRequest.getAuthKeys(code: token)
+                let response: AccessTokens = try await requestManager.requestAuthKeys(request)
+                try accessManager.refreshWith(token: response)
+                completion(true)
+                return
+            }
+        }
+        completion(false)
+    }
+    
     func getAuthorizationRequest() -> URLRequest? {
-//        if !accessManager.hasAccessToken() {
-            return createAuthorizationRequest()
-//        }
-//        return nil
+        return createAuthorizationRequest()
     }
     
     func getLikedSongs() async throws -> [SongItem] {
@@ -55,10 +65,23 @@ class SpotifyMusic: MusicProvider {
         let request = TracksRequest.getBatchFrom(url: nextRequestUrl)
         return try await getSongsWith(request: request)
     }
+    
+    func cancelSearching() {
+        isSearching = false
+    }
 }
 
 // MARK: Helpers
 extension SpotifyMusic {
+    private func extractTokenFromURL(_ url: String) -> String? {
+        if url.contains("code="),
+           let responseWithToken = url.components(separatedBy: "code=").last,
+            let token = responseWithToken.components(separatedBy: "&").first {
+            return token
+        }
+        return nil
+    }
+    
     private func createAuthorizationRequest() -> URLRequest? {
         let scopeAsString = APIConstants.scopes.joined(separator: " ")
         var components = URLComponents()
@@ -79,10 +102,7 @@ extension SpotifyMusic {
     }
     
     private func getSongsWith(request: RequestProtocol) async throws -> [SongItem] {
-        
         do {
-            
-            
             if !isSearching {
                 let response: SpotifyTracks = try await requestManager.perform(request)
                 self.nextLikedSongsRequestUrl = response.next
@@ -95,18 +115,13 @@ extension SpotifyMusic {
                 isSearching = false
                 return convertToSongItems(tracks)
             }
-            
-            
-            
         } catch {
             throw error
         }
     }
     
     private func convertToSongItems(_ tracks: [SpotifyTrack]) -> [SongItem] {
-        return tracks.map { track in
-            return createSongItem(from: track)
-        }
+        return tracks.map {createSongItem(from: $0)}
     }
     
     private func createSongItem(from track: SpotifyTrack?) -> SongItem {

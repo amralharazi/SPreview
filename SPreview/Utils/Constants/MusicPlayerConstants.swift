@@ -13,3 +13,4 @@ struct MusicPlayerConstants {
     static let endedRate: Float = 0.0
     static let progressObserverInterval: Double = 0.01
 }
+ 

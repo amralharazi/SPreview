@@ -14,26 +14,15 @@ struct SPreviewApp: App {
     private let accessManager = TokenManager.shared
     private var musicProvider = SpotifyMusic()
     
-    
-//    init() {
-//        [kSecClassGenericPassword, kSecClassInternetPassword, kSecClassCertificate, kSecClassKey, kSecClassIdentity].forEach {
-//            SecItemDelete([
-//                kSecClass: $0,
-//                kSecAttrSynchronizable: kSecAttrSynchronizableAny
-//            ] as CFDictionary)
-//            
-//        }
-//    }
-//    
-    
     // MARK: Content
     var body: some Scene {
         WindowGroup {
             if !accessManager.hasAccessToken() {
                 AuthorizationView(musicProvider: musicProvider)
             } else {
-                SavedSongsView(musicProvider: musicProvider)
+                SavedSongsView<SpotifyMusic>()
                     .withErrorHandling()
+                    .environmentObject(musicProvider)
             }
         }
     }

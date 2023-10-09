@@ -15,8 +15,14 @@ struct ErrorAlert: Identifiable {
 
 class ErrorHandling: ObservableObject {
     @Published var currentAlert: ErrorAlert?
-
+    @Published var isPresented = false
+    
     func handle(error: Error) {
         currentAlert = ErrorAlert(error: error)
+        isPresented = true
+        currentAlert?.dismissAction = { [weak self] in
+            self?.isPresented = false
+            self?.currentAlert = nil
+        }
     }
 }

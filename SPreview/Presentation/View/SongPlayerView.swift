@@ -12,7 +12,6 @@ struct SongPlayerView: View {
     // MARK: Properties
     let song: SongItem
     let imgDimension: CGFloat
-   
     
     @EnvironmentObject var errorHandling: ErrorHandling
     
@@ -28,8 +27,8 @@ struct SongPlayerView: View {
             
             ZStack(alignment: .top) {
                 Color.brightestPerrywinkle
-                    .clipShape(.rect(topLeadingRadius: 16,
-                                     topTrailingRadius: 16))
+                    .clipShape(.rect(topLeadingRadius: DrawingConstants.maxInnerCornerRadius,
+                                     topTrailingRadius: DrawingConstants.maxInnerCornerRadius))
                     .shadow(radius: DrawingConstants.shadowRadius)
                 
                 VStack(spacing: DrawingConstants.maxVerticalSpacing){
@@ -62,20 +61,8 @@ struct SongPlayerView: View {
                                  topTrailingRadius: DrawingConstants.maxCornerRadius))
                 .shadow(radius: DrawingConstants.shadowRadius)
                 .overlay(alignment: .center, content: {
-                    Button("Play Song Instead") {
-                        if let url = song.spotifyUri {
-                            print(url)
-                            guard let url = URL(string: url) else {
-                                return
-                            }
-                            
-                            if #available(iOS 10.0, *) {
-                                UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                            } else {
-                                UIApplication.shared.openURL(url)
-                            }
-                            
-                        }
+                    Button("Play Song On Spotify") {
+                        playSongOnSpotify()
                     }
                     .fontWeight(.semibold)
                     .foregroundStyle(.white)
@@ -87,9 +74,9 @@ struct SongPlayerView: View {
         .ignoresSafeArea()
         .onAppear {
             bottomSafeAreaHeight = UIScreen.safeArea.bottom
-//            DispatchQueue.main.asyncAfter(deadline: .now() + AnimationConstants.minDuration) {
-//                configurePlayer()
-//            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + AnimationConstants.minDuration) {
+                configurePlayer()
+            }
         }
         .onChange(of: song) {
             configurePlayer()
@@ -144,6 +131,14 @@ struct SongPlayerView: View {
     private func seekTo(second: CGFloat) {
         musicPlayer.seekTo(startAt: second)
         resumeMusic()
+    }
+    
+    private func playSongOnSpotify() {
+        guard let songUrl = song.spotifyUri,
+               let url = URL(string: songUrl) else {
+            return
+        }
+        UIApplication.shared.open(url, options: [:], completionHandler: nil)
     }
 }
 

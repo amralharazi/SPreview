@@ -52,7 +52,7 @@ class RequestManager: RequestManagerProtocol {
         if accessTokenManager.isTokenValid() {
             return accessTokenManager.fetchAccessToken()
         }
-        let data = try await apiManager.requestToken()
+        let data = try await apiManager.requestRefreshToken()
         let token: AccessTokens = try parser.parse(data: data)
         try accessTokenManager.refreshWith(token: token)
         return token.access_token ?? ""

@@ -23,15 +23,17 @@ struct HandleErrorViewModifier: ViewModifier {
                 .environmentObject(errorHandling)
                 .background(
                     EmptyView()
-                        .alert(item: $errorHandling.currentAlert) { currentAlert in
-                            Alert(
-                                title: Text("Error"),
-                                message: Text(currentAlert.error.localizedDescription),
-                                dismissButton: .default(Text("Ok")) {
-                                    currentAlert.dismissAction?()
-                                }
-                            )
-                        }
+                        .alert("Error",
+                               isPresented: $errorHandling.isPresented,
+                               actions: {
+                                   Button("Ok") {
+                                       errorHandling.currentAlert?.dismissAction?()
+                                   }
+                               },
+                               message: {
+                                   Text(errorHandling.currentAlert?.error.localizedDescription ?? "")
+                               }
+                              )
                 )
         }
     }

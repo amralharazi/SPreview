@@ -8,72 +8,52 @@
 import SwiftUI
 import WebKit
 
-struct WebView: UIViewRepresentable {
+struct WebView<Provider: MusicProvider>: UIViewRepresentable {
     
     // MARK: Properties
-    let request: URLRequest
-    var webview: WKWebView?
-    let requestManager: RequestManagerProtocol
+    let musicProvider: Provider
+    private var webview: WKWebView
     
     @Binding var hasAuthorized: Bool
     
     // MARK: Init
-    init(web: WKWebView? = WKWebView() ,
-         req: URLRequest,
+    init(musicProvider: Provider,
          requestManager: RequestManagerProtocol,
          hasAuthorized: Binding<Bool>) {
-        self.webview = web
-        self.request = req
-        self.requestManager = requestManager
+        self.musicProvider = musicProvider
+        self.webview = WKWebView()
         _hasAuthorized = hasAuthorized
     }
     
     // MARK: Functions
-    func makeCoordinator() -> Coordinator {
+    func makeCoordinator() -> Coordinator<Provider> {
         Coordinator(self)
     }
     
     func makeUIView(context: Context) -> WKWebView  {
-        return webview!
+        return webview
     }
     
     func updateUIView(_ uiView: WKWebView, context: Context) {
+        guard let request = musicProvider.getAuthorizationRequest() else {return}
         uiView.load(request)
         uiView.navigationDelegate = context.coordinator
-    }
-    
-    func goBack(){
-        webview?.goBack()
-    }
-    
-    func goForward(){
-        webview?.goForward()
-    }
-    
-    func reload(){
-        webview?.reload()
     }
 }
 
 // MARK: Coordinator
-class Coordinator: NSObject, WKNavigationDelegate {
-    var parent: WebView
+class Coordinator<Provider: MusicProvider>: NSObject, WKNavigationDelegate {
+    var parent: WebView<Provider>
     
-    init(_ parent: WebView) {
+    init(_ parent: WebView<Provider>) {
         self.parent = parent
     }
     
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        guard let urlAbsoluteString = webView.url?.absoluteString,
-              urlAbsoluteString.contains("code=") else {return}
-        if let responseWithToken = urlAbsoluteString.components(separatedBy: "code=").last,
-           let token = responseWithToken.components(separatedBy: "&").first {
-                        
-            Task {
-                let request = TokenRequest.getAuthKeys(code: token)
-                let response: AccessTokens = try await parent.requestManager.requestAuthKeys(request)
-                try parent.requestManager.accessTokenManager.refreshWith(token: response)
-                parent.hasAuthorized = true
+        guard let urlAbsoluteString = webView.url?.absoluteString else {return}
+        parent.musicProvider.getAuthToken(from: urlAbsoluteString) {[weak self] hasRetrivedToken in
+            if hasRetrivedToken {
+                self?.parent.hasAuthorized = true
             }
         }
     }

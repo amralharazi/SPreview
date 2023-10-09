@@ -7,35 +7,45 @@
 
 import SwiftUI
 
-
-struct SavedSongsView: View {
+struct SavedSongsView<Provider: MusicProvider>: View {
     
     // MARK: Properties
-    @State var musicProvider: MusicProvider
-    
+    @EnvironmentObject var musicProvider: Provider
     @EnvironmentObject var errorHandling: ErrorHandling
     
     @State private var likedSongs = [SongItem]()
-    @State private var searchedSongs = [SongItem]()
+    @State private var searchResultSongs = [SongItem]()
     @State private var tappedSong: SongItem?
     @State private var isShowingLastSong = false
     @State private var isPlaying = false
     @State private var searchTerm = ""
+    private var songsToDisplay: Binding<[SongItem]> {
+        Binding(get: {
+            searchTerm.isEmpty ? likedSongs : searchResultSongs
+        }, set: { newValue in
+            if searchTerm.isEmpty {
+                likedSongs = newValue
+            } else {
+                searchResultSongs = newValue
+            }
+        })
+    }
     
     // MARK: Content
     var body: some View {
         GeometryReader { geometry in
             let imgDimension = geometry.size.width/6
             let playerHeight = geometry.size.height/5.5 + UIScreen.safeArea.bottom
+            let headerHeight = geometry.size.height/10
             
             NavigationView {
                 ZStack(alignment: .bottom) {
                     VStack(spacing: DrawingConstants.minVerticalSpacing) {
                         TitleAndSearchHeaderView(searchTerm: $searchTerm)
-                            .frame(height: 120)
+                            .frame(height: headerHeight)
                         
                         SongListView(imgDimension: imgDimension,
-                                     songs: searchTerm == "" ? $likedSongs : $searchedSongs,
+                                     songs: songsToDisplay,
                                      tappedSong: $tappedSong.animation(),
                                      isShowingLastSong: $isShowingLastSong)
                         
@@ -52,7 +62,7 @@ struct SavedSongsView: View {
                                            musicPlayer: MusicPlayer.shared)
                             .frame(height: playerHeight)
                             .offset(y: isPlaying ? 0 : playerHeight*1.5)
-                            .animation(.easeInOut(duration: AnimationConstants.minDuration), 
+                            .animation(.easeInOut(duration: AnimationConstants.minDuration),
                                        value: isPlaying)
                         }
                     }
@@ -74,17 +84,12 @@ struct SavedSongsView: View {
                 }
             }
             .onChange(of: tappedSong) {
-                if isPlaying == false {
+                if !isPlaying {
                     isPlaying = true
                 }
             }
             .onChange(of: searchTerm) {
-                let nonEmptyTerm = searchTerm.trimmingCharacters(in: .whitespacesAndNewlines)
-                if nonEmptyTerm.isEmpty {
-                    musicProvider.searchTerm = ""
-                } else {
-                    Task{ await searchForSongsWith(searchTerm: nonEmptyTerm)}
-                }
+                handleChange(in: searchTerm)
             }
         }
     }
@@ -96,16 +101,23 @@ struct SavedSongsView: View {
         } catch {
             self.errorHandling.handle(error: error)
         }
-        
+    }
+    
+    private func handleChange(in searchTerm: String) {
+        let nonEmptyTerm = searchTerm.trimmingCharacters(in: .whitespacesAndNewlines)
+        if nonEmptyTerm.isEmpty {
+            musicProvider.cancelSearching()
+        } else {
+            Task{ await searchForSongsWith(searchTerm: nonEmptyTerm)}
+        }
     }
     
     private func searchForSongsWith(searchTerm: String) async {
         do {
-            searchedSongs = try await musicProvider.getSongsWith(searchTerm: searchTerm)
+            searchResultSongs = try await musicProvider.getSongsWith(searchTerm: searchTerm)
         } catch {
             self.errorHandling.handle(error: error)
         }
-        
     }
     
     private func getNextBatch() async {
@@ -120,7 +132,7 @@ struct SavedSongsView: View {
 }
 
 #Preview {
-    SavedSongsView(musicProvider: SpotifyMusic())
+    SavedSongsView<SpotifyMusic>()
 }
 
 

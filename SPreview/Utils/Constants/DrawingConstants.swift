@@ -15,6 +15,7 @@ struct DrawingConstants {
     
     static let minCornerRadius: Double = 10
     static let maxCornerRadius: Double = 20
+    static let maxInnerCornerRadius: Double = 16
     
     static let shadowRadius: Double = 5
     }
