@@ -48,7 +48,7 @@ enum TokenRequest: RequestProtocol {
     }
     
     var headers: HTTPHeaders {
-        let clientAndSecertKey = "\(SpotifyAuthKeys.clientId):\(SpotifyAuthKeys.secretKey)"
+        let clientAndSecertKey = "\(SpotifyAuthController.shared.clientId):\(SpotifyAuthController.shared.secretKey)"
         let spotifyAuthKeyData = clientAndSecertKey.data(using: .utf8)
         let authKeyBase64 = spotifyAuthKeyData?.base64EncodedString() ?? ""
         let headers: HTTPHeaders = ["Authorization": "Basic \(authKeyBase64)",

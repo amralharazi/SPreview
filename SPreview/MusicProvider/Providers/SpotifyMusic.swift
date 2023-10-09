@@ -91,7 +91,7 @@ extension SpotifyMusic {
         
         let params  = [
             "response_type": APIConstants.responseType,
-            "client_id": SpotifyAuthKeys.clientId,
+            "client_id": SpotifyAuthController.shared.clientId,
             "redirect_uri": APIConstants.redirectUri,
             "scope": scopeAsString]
         

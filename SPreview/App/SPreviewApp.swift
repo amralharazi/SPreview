@@ -14,6 +14,8 @@ struct SPreviewApp: App {
     private let accessManager = TokenManager.shared
     private var musicProvider = SpotifyMusic()
     
+    private let appDelegate = AppDelegate()
+    
     // MARK: Content
     var body: some Scene {
         WindowGroup {
