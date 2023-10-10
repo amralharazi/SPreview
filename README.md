@@ -4,7 +4,7 @@ A SwiftUI application to listen and play Spotify songs preview.
 
 | Liked songs        | Song player | Search for songs
 | --------------- | --------------- |  --------------- |
-| <img src="https://github.com/amralharazi/SPreview/assets/55652499/b9e0494b-c63d-497a-8dce-0a5e5869cc8b" width="240"> | <img src="https://github.com/amralharazi/SPreview/assets/55652499/2099460b-bc11-4347-8d1a-07fce8a2f0c0" width="240"> | <img src="https://github.com/amralharazi/SPreview/assets/55652499/06a41def-0688-49f6-b7f9-c208984ddc43" width="240"> 
+| <img src="https://github.com/amralharazi/SPreview/assets/55652499/16e936ab-7e7e-4dc1-91f8-1258912f8c05" width="240"> | <img src="https://github.com/amralharazi/SPreview/assets/55652499/3fc31709-f27f-45c2-a838-324373b6f303" width="240"> | <img src="https://github.com/amralharazi/SPreview/assets/55652499/47a1f8f4-4b78-4590-bf70-bf90db440613" width="240"> 
 
 ## Getting Started
 1. Make sure you have Xcode 15 or higher installed on your computer.
