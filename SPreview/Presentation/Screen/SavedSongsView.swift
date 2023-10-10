@@ -17,7 +17,7 @@ struct SavedSongsView<Provider: MusicProvider>: View {
     @State private var searchResultSongs = [SongItem]()
     @State private var tappedSong: SongItem?
     @State private var isShowingLastSong = false
-    @State private var isPlaying = false
+    @State private var shouldPlayerAppeare = false
     @State private var searchTerm = ""
     private var songsToDisplay: Binding<[SongItem]> {
         Binding(get: {
@@ -36,7 +36,7 @@ struct SavedSongsView<Provider: MusicProvider>: View {
         GeometryReader { geometry in
             let imgDimension = geometry.size.width/6
             let playerHeight = geometry.size.height/5.5 + UIScreen.safeArea.bottom
-            let headerHeight = geometry.size.height/10
+            let headerHeight: Double = 80
             
             NavigationView {
                 ZStack(alignment: .bottom) {
@@ -61,9 +61,9 @@ struct SavedSongsView<Provider: MusicProvider>: View {
                                            imgDimension: imgDimension,
                                            musicPlayer: MusicPlayer.shared)
                             .frame(height: playerHeight)
-                            .offset(y: isPlaying ? 0 : playerHeight*1.5)
-                            .animation(.easeInOut(duration: AnimationConstants.minDuration),
-                                       value: isPlaying)
+                            .offset(y: shouldPlayerAppeare ? 0 : playerHeight)
+                            .animation(.easeIn(duration: AnimationConstants.minDuration),
+                                       value: shouldPlayerAppeare)
                         }
                     }
                 }
@@ -75,17 +75,16 @@ struct SavedSongsView<Provider: MusicProvider>: View {
             .onTapGesture {
                 UIApplication.shared.dismissKeyboard()
             }
+            
             .task {
                 await getSavedSongs()
             }
-            .onChange(of: isShowingLastSong) { _, newValue in
-                if newValue == true {
-                    Task{ await getNextBatch()}
-                }
-            }
             .onChange(of: tappedSong) {
-                if !isPlaying {
-                    isPlaying = true
+                shouldPlayerAppeare = tappedSong != nil
+            }
+            .onChange(of: isShowingLastSong) {
+                if isShowingLastSong {
+                    Task{ await getNextBatch()}
                 }
             }
             .onChange(of: searchTerm) {
@@ -123,7 +122,11 @@ struct SavedSongsView<Provider: MusicProvider>: View {
     private func getNextBatch() async {
         do {
             let newBatch = try await musicProvider.getNextSongBatch()
-            likedSongs.append(contentsOf: newBatch)
+            if searchTerm.isEmpty {
+                likedSongs.append(contentsOf: newBatch)
+            } else {
+                searchResultSongs.append(contentsOf: newBatch)
+            }
             isShowingLastSong = false
         } catch {
             self.errorHandling.handle(error: error)
@@ -133,6 +136,7 @@ struct SavedSongsView<Provider: MusicProvider>: View {
 
 #Preview {
     SavedSongsView<SpotifyMusic>()
+        .environmentObject(SpotifyMusic())
 }
 
 

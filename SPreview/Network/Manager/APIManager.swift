@@ -33,7 +33,7 @@ class APIManager: APIManagerProtocol {
                        parameters: request.params,
                        encoding: request.encoding,
                        headers: headers).responseData { response in
-                debugPrint(response)
+//                debugPrint(response)
                 
                 if authToken != "" && (response.response?.statusCode == 400 ||
                                        response.response?.statusCode == 401) {

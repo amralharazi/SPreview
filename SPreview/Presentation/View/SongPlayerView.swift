@@ -14,10 +14,12 @@ struct SongPlayerView: View {
     let imgDimension: CGFloat
     
     @EnvironmentObject var errorHandling: ErrorHandling
+    @Environment(\.openURL) private var openURL
     
     @StateObject var musicPlayer: MusicPlayer
     
     @State private var isPlaying = false
+    @State private var hasAppeared = false
     @State private var startingSecond: Double = 0
     @State private var bottomSafeAreaHeight: CGFloat = 0
     
@@ -66,9 +68,10 @@ struct SongPlayerView: View {
                     }
                     .fontWeight(.semibold)
                     .foregroundStyle(.white)
-                    .offset(y: -5)
                 })
                 .frame(height: 44+bottomSafeAreaHeight)
+                .offset(y: hasAppeared ? 0 : (44+bottomSafeAreaHeight))
+                .animation(.easeIn, value: hasAppeared)
             
         }
         .ignoresSafeArea()
@@ -76,6 +79,7 @@ struct SongPlayerView: View {
             bottomSafeAreaHeight = UIScreen.safeArea.bottom
             DispatchQueue.main.asyncAfter(deadline: .now() + AnimationConstants.minDuration) {
                 configurePlayer()
+                hasAppeared = true               
             }
         }
         .onChange(of: song) {
@@ -135,10 +139,15 @@ struct SongPlayerView: View {
     
     private func playSongOnSpotify() {
         guard let songUrl = song.spotifyUri,
-               let url = URL(string: songUrl) else {
+              let url = URL(string: songUrl) else {
             return
         }
-        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        musicPlayer.pauseMusic()
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        } else {
+            openURL(url)
+        }
     }
 }
 

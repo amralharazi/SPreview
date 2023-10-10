@@ -12,6 +12,8 @@ struct SongListView: View {
     // MARK: Properties
     let imgDimension: CGFloat
     
+    @EnvironmentObject var errorHandling: ErrorHandling
+
     @Binding var songs: [SongItem]
     @Binding var tappedSong: SongItem?
     @Binding var isShowingLastSong: Bool
@@ -35,7 +37,7 @@ struct SongListView: View {
                         }
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            tappedSong = song
+                            addToPlayer(song: song)
                         }
                     }
                 }
@@ -46,6 +48,15 @@ struct SongListView: View {
             .scrollIndicators(.hidden)
             .listStyle(.plain)
         }
+    }
+    
+    // MARK: Functions
+    private func addToPlayer(song: SongItem) {
+        guard song.previewUrl != nil else {
+            self.errorHandling.handle(error: MusicProviderError.songHasNoPreview)
+            return
+        }
+        tappedSong = song
     }
 }
 

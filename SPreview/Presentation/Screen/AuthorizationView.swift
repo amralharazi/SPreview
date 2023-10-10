@@ -48,7 +48,7 @@ struct AuthorizationView<Provider: MusicProvider>: View {
                     .fullScreenCover(isPresented: $hasAuthorized) {
                         SavedSongsView<SpotifyMusic>()
                             .withErrorHandling()
-                            .environmentObject(SpotifyMusic())
+                            .environmentObject(musicProvider as! SpotifyMusic)
                     }
             }
         }

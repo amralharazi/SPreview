@@ -38,7 +38,6 @@ class TokenManager: TokenManagerProtocol {
     
     // MARK: Helpers
     func isTokenValid() -> Bool {
-        update()
         return expires_in.compare(Date()) == .orderedDescending
     }
     
