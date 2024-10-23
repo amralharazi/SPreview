@@ -12,7 +12,6 @@ struct AuthorizationView<Provider: MusicProvider>: View {
     // MARK: Properties
     let musicProvider: Provider
     
-    @State private var presentAuthorizationWebView = false
     @State private var hasAuthorized = false
     
     // MARK: Content
@@ -31,7 +30,7 @@ struct AuthorizationView<Provider: MusicProvider>: View {
                         .multilineTextAlignment(.center)
                     
                     Button("Authorize") {
-                        presentAuthorizationWebView.toggle()
+                        SpotifyAuthController.shared.authenticateSpotify()
                     }
                     .foregroundStyle(.white)
                     .font(.system(.headline))
@@ -40,16 +39,6 @@ struct AuthorizationView<Provider: MusicProvider>: View {
                     .clipShape(RoundedRectangle(cornerRadius: DrawingConstants.maxCornerRadius))
                 }
                 .padding()
-            }
-            .fullScreenCover(isPresented: $presentAuthorizationWebView) {
-                WebView(musicProvider: musicProvider,
-                        requestManager: RequestManager(),
-                        hasAuthorized: $hasAuthorized)
-                    .fullScreenCover(isPresented: $hasAuthorized) {
-                        SavedSongsView<SpotifyMusic>()
-                            .withErrorHandling()
-                            .environmentObject(musicProvider as! SpotifyMusic)
-                    }
             }
         }
     }

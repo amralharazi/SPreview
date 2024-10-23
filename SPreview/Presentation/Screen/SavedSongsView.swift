@@ -17,7 +17,7 @@ struct SavedSongsView<Provider: MusicProvider>: View {
     @State private var searchResultSongs = [SongItem]()
     @State private var tappedSong: SongItem?
     @State private var isShowingLastSong = false
-    @State private var shouldPlayerAppeare = false
+    @State private var shouldPlayerAppear = false
     @State private var searchTerm = ""
     private var songsToDisplay: Binding<[SongItem]> {
         Binding(get: {
@@ -61,9 +61,9 @@ struct SavedSongsView<Provider: MusicProvider>: View {
                                            imgDimension: imgDimension,
                                            musicPlayer: MusicPlayer.shared)
                             .frame(height: playerHeight)
-                            .offset(y: shouldPlayerAppeare ? 0 : playerHeight)
+                            .offset(y: shouldPlayerAppear ? 0 : playerHeight)
                             .animation(.easeIn(duration: AnimationConstants.minDuration),
-                                       value: shouldPlayerAppeare)
+                                       value: shouldPlayerAppear)
                         }
                     }
                 }
@@ -75,12 +75,11 @@ struct SavedSongsView<Provider: MusicProvider>: View {
             .onTapGesture {
                 UIApplication.shared.dismissKeyboard()
             }
-            
             .task {
                 await getSavedSongs()
             }
             .onChange(of: tappedSong) {
-                shouldPlayerAppeare = tappedSong != nil
+                shouldPlayerAppear = tappedSong != nil
             }
             .onChange(of: isShowingLastSong) {
                 if isShowingLastSong {
@@ -99,6 +98,7 @@ struct SavedSongsView<Provider: MusicProvider>: View {
             likedSongs = try await musicProvider.getLikedSongs()
         } catch {
             self.errorHandling.handle(error: error)
+            print(error)
         }
     }
     

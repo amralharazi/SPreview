@@ -104,6 +104,7 @@ extension SpotifyMusic {
     }
     
     private func getSongsWith(request: RequestProtocol) async throws -> [SongItem] {
+        print(request.headers)
         do {
             if isSearching {
                 let response: SpotifySearchResult = try await requestManager.perform(request)
